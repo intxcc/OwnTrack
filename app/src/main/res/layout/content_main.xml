@@ -22,7 +22,10 @@
         style="@style/Base.TextAppearance.AppCompat.Headline"
         android:layout_below="@+id/linearLayout2"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
+        android:alpha="0.8"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -33,7 +36,10 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        style="@style/Base.TextAppearance.AppCompat.Headline" />
+        style="@style/Base.TextAppearance.AppCompat.Headline"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
+        android:alpha="0.8" />
 
     <LinearLayout
         android:orientation="vertical"
@@ -56,8 +62,19 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:id="@+id/layoutGrid"
-
         android:alignmentMode="alignBounds">
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_row="0"
+            android:layout_column="0"
+            android:layout_gravity="fill"
+            android:id="@+id/layoutGrid_overlay"
+            android:background="@color/colorAccent"
+            android:layout_columnSpan="2"
+
+            android:alpha="1" />
 
         <Switch
             android:layout_column="0"
@@ -74,22 +91,33 @@
             android:layout_row="0"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="Activate Service"
             android:id="@+id/active_switcher_label"
             android:labelFor="@id/active_switch"
             android:gravity="center"
             android:layout_gravity="fill"
-            android:paddingRight="5dp" />
+            android:textSize="15dp"
+            android:paddingRight="10dp"
 
-        <FrameLayout
+            android:alpha="0"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp" />
+
+        <TextView
+            android:layout_column="1"
+            android:layout_row="0"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_row="0"
-            android:layout_column="0"
+            android:text="Activate Service"
+            android:id="@+id/active_switcher_label_overlay"
+            android:labelFor="@id/active_switch"
+            android:textColor="#ffffff"
+            android:gravity="center"
             android:layout_gravity="fill"
-            android:layout_columnSpan="2">
-        </FrameLayout>
+            android:textSize="15dp"
+            android:paddingRight="10dp"
+
+            android:alpha="1" />
 
     </GridLayout>
 
