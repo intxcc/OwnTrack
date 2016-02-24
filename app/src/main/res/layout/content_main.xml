@@ -12,8 +12,85 @@
     tools:context="cc.intx.owntrack.MainActivity"
     tools:showIn="@layout/activity_main">
 
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ff" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/settings_hl_text"
+        android:id="@+id/textView"
+        style="@style/Base.TextAppearance.AppCompat.Headline"
+        android:layout_below="@+id/linearLayout2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Status"
+        android:id="@+id/textView2"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        style="@style/Base.TextAppearance.AppCompat.Headline" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:padding="10dp"
+        android:id="@+id/linearLayout2"></LinearLayout>
+
+
+
+    <GridLayout
+        android:columnCount="2"
+        android:layout_below="@+id/textView"
+        android:layout_marginTop="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/layoutGrid"
+
+        android:alignmentMode="alignBounds">
+
+        <Switch
+            android:layout_column="0"
+            android:layout_row="0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/active_switch"
+            android:checked="false"
+            android:layout_gravity="fill"
+            android:paddingLeft="5dp" />
+
+        <TextView
+            android:layout_column="1"
+            android:layout_row="0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Activate Service"
+            android:id="@+id/active_switcher_label"
+            android:labelFor="@id/active_switch"
+            android:gravity="center"
+            android:layout_gravity="fill"
+            android:paddingRight="5dp" />
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_row="0"
+            android:layout_column="0"
+            android:layout_gravity="fill"
+            android:layout_columnSpan="2">
+        </FrameLayout>
+
+    </GridLayout>
+
 </RelativeLayout>
