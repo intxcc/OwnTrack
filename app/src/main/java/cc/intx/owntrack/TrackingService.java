@@ -6,14 +6,13 @@ import android.os.IBinder;
 import android.os.StrictMode;
 import android.util.Log;
 
-/**
- * Created by xiix on 24.02.2016.
- */
 public class TrackingService extends Service {
-    private String TAG = getString(R.string.app_name);
+    private String TAG;
 
     @Override
     public void onCreate() {
+        TAG = getString(R.string.app_name); //Set debug string to app name
+
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
     }
