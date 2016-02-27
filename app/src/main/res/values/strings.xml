@@ -4,6 +4,6 @@
     <string name="status_hl_text">Status</string>
 
     <string name="active_switch_text_default">Service Stopped</string>
-    <string name="active_switch_text_starting">Starting Service</string>
+    <string name="active_switch_text_waiting">Waiting for Service</string>
     <string name="active_switch_text_started">Service Running</string>
 </resources>

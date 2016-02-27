@@ -18,22 +18,41 @@ public class MainActivity extends AppCompatActivity {
 
     //Static variables
     final static private int animationSpeed = 600;
+    final static private int fastAnimationSpeed = 200;
     final static private TimeInterpolator animationInterpolator = new FastOutSlowInInterpolator();
 
     //Global objects
     private FrameLayout switchLayoutOverlay;
+    private FrameLayout switchLayoutF;
     private TextView switchTextOverlay;
     private Switch activeSwitch;
 
     //Control service class
     private class ServiceControlClass {
         private boolean isServiceActive = false;
+        private boolean isServiceWaiting = false;
 
-        private void changeStatusToActive(){changeStatus(true);}
-        private void changeStatusToNotActive(){changeStatus(false);}
-        private void changeStatus(boolean active) {
-            isServiceActive = active;
+        private void changeStatusToActive() {
+            isServiceActive = true;
+            isServiceWaiting = false;
 
+            onChangeStatus();
+        }
+
+        private void changeStatusToWaiting(){
+            isServiceWaiting = true;
+
+            onChangeStatus();
+        }
+
+        private void changeStatusToNotActive(){
+            isServiceActive = false;
+            isServiceWaiting = false;
+
+            onChangeStatus();
+        }
+
+        private void onChangeStatus() {
             onServiceStatusChange();
         }
 
@@ -48,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         private void start() {
             Log.d(TAG, "Start Service");
 
+            changeStatusToWaiting();
             started();
         }
 
@@ -59,6 +79,10 @@ public class MainActivity extends AppCompatActivity {
 
         public boolean getActive() {
             return isServiceActive;
+        }
+
+        public boolean getWaiting() {
+            return isServiceWaiting;
         }
     }
     final private ServiceControlClass serviceControl = new ServiceControlClass();
@@ -84,6 +108,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void onServiceStatusChange() {
         switchSetOverlay(serviceControl.getActive());
+
+        if (serviceControl.getWaiting()) {
+            activeSwitch.setEnabled(false);
+            activeSwitch.setClickable(false);
+            activeSwitch.setFocusable(false);
+
+            switchLayoutF.clearAnimation();
+            switchLayoutF.animate().alpha(1f).setDuration(fastAnimationSpeed).setInterpolator(animationInterpolator).setStartDelay(0);
+        } else {
+            activeSwitch.setEnabled(true);
+            activeSwitch.setClickable(true);
+            activeSwitch.setFocusable(true);
+
+            switchLayoutF.clearAnimation();
+            switchLayoutF.animate().alpha(0f).setDuration(fastAnimationSpeed).setInterpolator(animationInterpolator).setStartDelay(animationSpeed);
+        }
     }
 
     /*
@@ -101,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
         //Initialize all global Objects we need
         switchLayoutOverlay = (FrameLayout) findViewById(R.id.layoutGrid_overlay);
         switchTextOverlay = (TextView) findViewById(R.id.active_switcher_label_overlay);
+        switchLayoutF = (FrameLayout) findViewById(R.id.active_switcher_text_overlay);
         activeSwitch = (Switch) findViewById(R.id.active_switch);
 
         //Called when the layout of the view overlay changes
