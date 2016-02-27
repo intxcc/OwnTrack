@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
 
-        <service android:enabled="true" android:name=".TrackingService" />
+        <service android:enabled="true" android:process=":service" android:name=".TrackingService" />
     </application>
 
 </manifest>

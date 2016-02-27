@@ -1,6 +1,9 @@
 package cc.intx.owntrack;
 
 import android.animation.TimeInterpolator;
+import android.content.Context;
+import android.content.Intent;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
@@ -32,8 +35,8 @@ public class MainActivity extends AppCompatActivity {
         private boolean isServiceActive = false;
         private boolean isServiceWaiting = false;
 
-        private void changeStatusToActive() {
-            isServiceActive = true;
+        private void changeActiveStatus(boolean isActive) {
+            isServiceActive = isActive;
             isServiceWaiting = false;
 
             onChangeStatus();
@@ -45,36 +48,41 @@ public class MainActivity extends AppCompatActivity {
             onChangeStatus();
         }
 
-        private void changeStatusToNotActive(){
-            isServiceActive = false;
-            isServiceWaiting = false;
-
-            onChangeStatus();
-        }
-
         private void onChangeStatus() {
             onServiceStatusChange();
         }
 
         private void started() {
-            changeStatusToActive();
+            Log.d(TAG, "Started service.");
+
+            changeActiveStatus(true);
         }
 
         private void stopped() {
-            changeStatusToNotActive();
+            Log.d(TAG, "Stopped service.");
+
+            changeActiveStatus(false);
         }
 
         private void start() {
-            Log.d(TAG, "Start Service");
-
             changeStatusToWaiting();
-            started();
+            Log.d(TAG, "Starting service...");
+
+            Context context = getBaseContext();
+            Intent intent = new Intent(context, TrackingService.class);
+            startService(intent);
+
+            //started();
         }
 
         private void stop() {
-            Log.d(TAG, "Stop Service");
+            Log.d(TAG, "Stopping service...");
 
-            stopped();
+            Context context = getBaseContext();
+            Intent intent = new Intent(context, TrackingService.class);
+            stopService(intent);
+
+            //stopped();
         }
 
         public boolean getActive() {
