@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
@@ -11,40 +12,116 @@ import android.util.Log;
 public class TrackingService extends Service {
     private String TAG; //Debug tag
 
+    //The pending intent is going to get called from the alarm manager
+    private PendingIntent pendingIntent;
+    private AlarmManager alarmManager;
+
+    //Indicates if the alarm manager is scheduled. If this is false the service will shutdown if the app is closed
+    private boolean isRunning = false;
+
+    //Binder object to give the app an interface for communication
+    private final IBinder serviceBinder = new ServiceBinder();
+    public class ServiceBinder extends Binder {
+        TrackingService getService() {
+            return TrackingService.this;
+        }
+    }
+
     @Override
     public void onCreate() {
         TAG = getString(R.string.app_name); //Set debug string to app name
 
-        Log.i(TAG, "Create Service");
+        Log.d(TAG, "Created service");
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null; //No binding yet
+        Log.d(TAG, "Bound");
+
+        //Pass the service interface to the app
+        return serviceBinder;
     }
 
-    private PendingIntent pendingIntent;
-    private AlarmManager alarmManager;
-
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        if (pendingIntent == null || alarmManager == null) {
-            Log.d(TAG, "Rewrite alarm");
+    public boolean onUnbind(Intent intent) {
+        Log.d(TAG, "Unbound");
+        isRunningListener = null;//Remove the status change listener, which was passed from the app
 
-            pendingIntent = PendingIntent.getService(this, 998566, intent, 0);
-            alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 500, 600, pendingIntent);
+        //If the app closes/unbinds and has chosen to stop the service, stop now
+        if (!isRunning) {
+            stopSelf();
         }
 
-        return START_REDELIVER_INTENT;
+        return false;//Do not call rebind on rebind, but bind
+    }
+
+    /*
+    Is called on start and from the alarm manager
+     */
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        //Debugging stuff
+        Log.d(TAG, "We Run (" + isRunning + "). intent: " + (intent == null ? "null" : intent.toString()) + ", flags: " + flags + ", id: " + startId);
+
+        //If there is no pending intent, alarmmanager and we are running, schedule our tracking service
+        if (pendingIntent == null || alarmManager == null || !isRunning) {
+            Log.d(TAG, "Rewrite alarm");
+
+            //Create pending intend for the alarm manager to call TODO MAYBE is the service intend created correctly?
+            Intent serviceIntent = new Intent(this, TrackingService.class);//Create new intent, to ignore the callee intend (autostart or app)
+            pendingIntent = PendingIntent.getService(this, 998566, serviceIntent, 0);
+
+            /*
+            Schedule tracking service. Inexact repeating to reduce battery draining, but *_WAKEUP to
+            track while the phone sleeps, otherwise the repeat can be REALLY inexact if the phone is
+            not used, which would make this app useless for a lot os usecases TODO preferences for repeating time
+             */
+            alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 4000, 1 * 60 * 1000, pendingIntent);
+        }
+        changeIsRunning(true);//Change running state
+
+        return START_STICKY;//Service will stay active even if the Activity is not
+    }
+
+    //Called if the service should stop with the activity
+    public void stopService() {
+        //Cancel the service scheduling, otherwise the service is reactivated from the alarm manager, even if it got stopped from the user
+        if (alarmManager != null && pendingIntent != null) {
+            Log.d(TAG, "Cancel all alarms");
+
+            alarmManager.cancel(pendingIntent);
+        }
+
+        changeIsRunning(false);//Change running state
     }
 
     @Override
     public void onDestroy() {
-        if (alarmManager != null && pendingIntent != null) {
-            alarmManager.cancel(pendingIntent);
-        }
+        //Cleanup the scheduling, to not get reactivated after destroy
+        stopService();
 
-        Log.i(TAG, "Destroy Service");
+        Log.d(TAG, "Destroyed service");
+    }
+
+    //Public interface for the app, to pass status changes to the ui. Updates status on new listener
+    private Runnable isRunningListener;
+    public void setIsRunningListener(Runnable runnable) {
+        isRunningListener = runnable;
+        changeIsRunning(isRunning);
+    }
+
+    //Changes status and calls status listener
+    public void changeIsRunning(boolean isRunning) {
+        this.isRunning = isRunning;
+
+        if (isRunningListener != null) {
+            isRunningListener.run();
+        }
+    }
+
+    //Public interface for checking status
+    public boolean getIsRunning() {
+        return isRunning;
     }
 }

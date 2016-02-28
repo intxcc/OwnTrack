@@ -2,8 +2,6 @@ package cc.intx.owntrack;
 
 import android.animation.TimeInterpolator;
 import android.content.Context;
-import android.content.Intent;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
@@ -17,7 +15,7 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     //Debug tag
-    private String TAG;
+    public String TAG;
 
     //Static variables
     final static private int animationSpeed = 600;
@@ -30,70 +28,19 @@ public class MainActivity extends AppCompatActivity {
     private TextView switchTextOverlay;
     private Switch activeSwitch;
 
-    //Control service class
-    private class ServiceControlClass {
-        private boolean isServiceActive = false;
-        private boolean isServiceWaiting = false;
-
-        private void changeActiveStatus(boolean isActive) {
-            isServiceActive = isActive;
-            isServiceWaiting = false;
-
-            onChangeStatus();
+    //Extend control service class, so we can use this class variables more easily
+    public class ServiceControl extends ServiceControlClass {
+        public ServiceControl(Context context) {
+            //Copy parent constructor
+            super(context, TAG);
         }
 
-        private void changeStatusToWaiting(){
-            isServiceWaiting = true;
-
-            onChangeStatus();
-        }
-
-        private void onChangeStatus() {
+        public void onChangeStatus() {
+            //Implement onstatuschange action
             onServiceStatusChange();
         }
-
-        private void started() {
-            Log.d(TAG, "Started service.");
-
-            changeActiveStatus(true);
-        }
-
-        private void stopped() {
-            Log.d(TAG, "Stopped service.");
-
-            changeActiveStatus(false);
-        }
-
-        private void start() {
-            changeStatusToWaiting();
-            Log.d(TAG, "Starting service...");
-
-            Context context = getBaseContext();
-            Intent intent = new Intent(context, TrackingService.class);
-            startService(intent);
-
-            //started();
-        }
-
-        private void stop() {
-            Log.d(TAG, "Stopping service...");
-
-            Context context = getBaseContext();
-            Intent intent = new Intent(context, TrackingService.class);
-            stopService(intent);
-
-            //stopped();
-        }
-
-        public boolean getActive() {
-            return isServiceActive;
-        }
-
-        public boolean getWaiting() {
-            return isServiceWaiting;
-        }
     }
-    final private ServiceControlClass serviceControl = new ServiceControlClass();
+    private ServiceControl serviceControl;
 
     /*
     PRIVATE FUNCTIONS
@@ -110,25 +57,36 @@ public class MainActivity extends AppCompatActivity {
 
         isSwitchOverlayActive = toState;//Save overlay state
 
-        switchLayoutOverlay.animate().x(newX).setDuration(duration).setInterpolator(animationInterpolator);
-        switchTextOverlay.animate().x(-newX).setDuration(duration).setInterpolator(animationInterpolator);
+        if (animate) {
+            switchLayoutOverlay.animate().x(newX).setDuration(duration).setInterpolator(animationInterpolator);
+            switchTextOverlay.animate().x(-newX).setDuration(duration).setInterpolator(animationInterpolator);
+        } else {
+            switchLayoutOverlay.setX(newX);
+            switchTextOverlay.setX(-newX);
+        }
     }
 
     private void onServiceStatusChange() {
+        /*
+        If the service state is different than the switch state and is not performing an ongoing task,
+        the switch is in the wrong state and thus synchronizes to the service state, to not confuse the
+        user and perform the expected action on checking
+         */
+        if (serviceControl.getActive() != activeSwitch.isChecked() && !serviceControl.getWaiting()) {
+            activeSwitch.setChecked(serviceControl.getActive());
+        }
+
+        //Set overlay to actual service state
         switchSetOverlay(serviceControl.getActive());
 
+        /*
+        Implemented a yet unused waiting state, to be able to visualize an ongoing action from the service,
+        in case this is necessary in the future
+         */
         if (serviceControl.getWaiting()) {
-            activeSwitch.setEnabled(false);
-            activeSwitch.setClickable(false);
-            activeSwitch.setFocusable(false);
-
             switchLayoutF.clearAnimation();
             switchLayoutF.animate().alpha(1f).setDuration(fastAnimationSpeed).setInterpolator(animationInterpolator).setStartDelay(0);
         } else {
-            activeSwitch.setEnabled(true);
-            activeSwitch.setClickable(true);
-            activeSwitch.setFocusable(true);
-
             switchLayoutF.clearAnimation();
             switchLayoutF.animate().alpha(0f).setDuration(fastAnimationSpeed).setInterpolator(animationInterpolator).setStartDelay(animationSpeed);
         }
@@ -137,6 +95,22 @@ public class MainActivity extends AppCompatActivity {
     /*
     PROTECTED FUNCTIONS
      */
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        //Create new control instance, which binds to the service gets its state
+        serviceControl = new ServiceControl(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        //Unbind from service
+        serviceControl.unbind();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         TAG = getString(R.string.app_name); //Set debug string to app name
@@ -174,8 +148,10 @@ public class MainActivity extends AppCompatActivity {
         activeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    //Starts service if necessary
                     serviceControl.start();
                 } else {
+                    //Stops service if necessary
                     serviceControl.stop();
                 }
             }
@@ -186,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
     PUBLIC FUNCTIONS
      */
     public void activeSwitchClick(View v) {
-        activeSwitch.performClick();//Pass click of whole switch layout to switch
+        //Pass click of whole switch layout to switch
+        activeSwitch.performClick();
     }
 }
