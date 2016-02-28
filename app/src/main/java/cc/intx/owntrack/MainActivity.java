@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout switchLayoutF;
     private TextView switchTextOverlay;
     private Switch activeSwitch;
+    private Preferences preferences;
 
     //Extend control service class, so we can use this class variables more easily
     public class ServiceControl extends ServiceControlClass {
@@ -101,6 +102,16 @@ public class MainActivity extends AppCompatActivity {
 
         //Create new control instance, which binds to the service gets its state
         serviceControl = new ServiceControl(this);
+
+        /*//////////////////TODO check permissioons
+        if (checkCallingOrSelfPermission(android.Manifest.permission.RECEIVE_BOOT_COMPLETED) == PackageManager.PERMISSION_GRANTED) {
+            ac
+            //IntentFilter intentFilter = new IntentFilter(android.intent.action.BOOT_COMPLETED)
+            //registerReceiver(receiver, )
+        } else {
+            Log.d(TAG, "saaa");//TODO warn user
+        }
+        //////////////////*/
     }
 
     @Override
@@ -125,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
         switchTextOverlay = (TextView) findViewById(R.id.active_switcher_label_overlay);
         switchLayoutF = (FrameLayout) findViewById(R.id.active_switcher_text_overlay);
         activeSwitch = (Switch) findViewById(R.id.active_switch);
+        preferences = new Preferences(this, TAG);
 
         //Called when the layout of the view overlay changes
         switchLayoutOverlay.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
