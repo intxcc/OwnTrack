@@ -3,6 +3,7 @@ package cc.intx.owntrack;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -40,7 +41,7 @@ public class Preferences {
             this.dataType = dataType;
             this.possibleValues = possibleValues;
             this.defaultValue = defaultValue;
-            this.isCustomizable = isCustomizable;
+            this.isCustomizable = isCustomizable;//TODO Implement custom integer settings
             this.currentValue = preferenceData.getString(this.key, this.possibleValues.get(this.defaultValue));
             this.descriptionTop = descriptionTop;
             this.descriptionBottom = descriptionBottom;
@@ -49,6 +50,16 @@ public class Preferences {
             this.textColor = textColor;
             this.activeBackgroundColor = activeBackgroundColor;
             this.activeTextColor = activeTextColor;
+        }
+
+        public boolean save(String value) {
+            SharedPreferences.Editor editor = preferenceData.edit();
+            editor.putString(this.key, value);
+            Boolean commited = editor.commit();
+            if (!commited) {
+                Log.d(TAG, "Couldn't save settings.");
+            }
+            return commited;
         }
 
         public ArrayList<String> getPossibleValues() {
@@ -98,6 +109,10 @@ public class Preferences {
         public String getDescriptionBottom() {
             return descriptionBottom;
         }
+
+        public String getKey() {
+            return key;
+        }
     }
 
     private int getColor(int color) {
@@ -121,7 +136,7 @@ public class Preferences {
         possibleValues = new ArrayList<>();
         possibleValues.add(0, "Not active");
         possibleValues.add(1, "Active");//default
-        newItem = new Item("autostart", Boolean.TYPE.toString(), possibleValues, 1, false, "Enable autostart", "", "",
+        newItem = new Item("autostart", Boolean.TYPE.toString(), possibleValues, 1, false, "Enable autostart", "Service will restart after reboot", "",
                            getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
 
@@ -133,7 +148,7 @@ public class Preferences {
         possibleValues.add("30");
         possibleValues.add("45");
         possibleValues.add("60");
-        newItem = new Item("interval", Integer.TYPE.toString(), possibleValues, possibleValues.indexOf("5"), true, "Interval", "Time between localisation attempts",
+        newItem = new Item("interval", Integer.TYPE.toString(), possibleValues, possibleValues.indexOf("5"), true, "Set interval", "Time between localisation attempts",
                            " minutes",getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
     }

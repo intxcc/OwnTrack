@@ -3,6 +3,7 @@ package cc.intx.owntrack;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 public class Autostart extends BroadcastReceiver {
@@ -12,6 +13,15 @@ public class Autostart extends BroadcastReceiver {
         Log.d(TAG, "Autostart received.");
 
         Intent serviceIntend = new Intent(context, TrackingService.class);
-        context.startService(serviceIntend);
+
+        SharedPreferences preferenceData = context.getSharedPreferences("preferences", Context.MODE_PRIVATE);
+        if (Boolean.parseBoolean(preferenceData.getString("autostart", Boolean.toString(true)))) {
+            Log.d(TAG, "Autostart activated.");
+            context.startService(serviceIntend);
+        } else {
+            Log.d(TAG, "Autostart deactivated.");
+        }
+
+        return;
     }
 }

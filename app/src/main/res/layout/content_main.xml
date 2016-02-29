@@ -13,35 +13,8 @@
     tools:context="cc.intx.owntrack.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/status_hl_text"
-        android:id="@+id/statusHl"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        style="@style/Base.TextAppearance.AppCompat.Headline"
-        android:textStyle="bold"
-        android:textColor="@color/hl_color" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/settings_hl_text"
-        android:id="@+id/settingsHl"
-        style="@style/Base.TextAppearance.AppCompat.Headline"
-        android:layout_below="@+id/statusHl"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:textStyle="bold"
-        android:textColor="@color/hl_color" />
-
     <LinearLayout
         android:orientation="vertical"
-        android:layout_below="@+id/settingsHl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"

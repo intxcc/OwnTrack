@@ -139,11 +139,10 @@ public class MainActivity extends AppCompatActivity {
         activeSwitch = (Switch) findViewById(R.id.active_switch);
         Preferences preferences = new Preferences(this, TAG);
 
-        //TODO/////////////////////////////////////////////
+        //Initialize settings
         GridView gridview = (GridView) findViewById(R.id.gridview);
         ArrayList<Preferences.Item> preferenceItems = preferences.getItems();
         gridview.setAdapter(new PreferencesView(this, preferenceItems, TAG, animationInterpolator, fastAnimationSpeed));
-        ////////////////////////////////////////////
 
         //Called when the layout of the view overlay changes
         switchLayoutOverlay.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {

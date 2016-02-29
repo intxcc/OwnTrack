@@ -3,7 +3,7 @@
     <string name="settings_hl_text">Settings</string>
     <string name="status_hl_text">Status</string>
 
-    <string name="active_switch_text_default">Service Stopped</string>
+    <string name="active_switch_text_default">Service Deactivated</string>
     <string name="active_switch_text_waiting">Waiting for Service</string>
     <string name="active_switch_text_started">Service Running</string>
 

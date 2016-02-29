@@ -3,7 +3,6 @@ package cc.intx.owntrack;
 import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -117,9 +116,9 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
 
                 recommendedSettingLabel.setPadding(0, v.getBaseline() + 20, 0, 0);
 
-                footerLabel.setPadding(0, v.getBaseline() + 40, 0, 0);
+                footerLabel.setPadding(20, v.getBaseline() + 40, 20, 0);
                 footerLabel.setText(preferenceItem.getDescriptionBottom());
-                footerLabel.setAlpha(0.9f);
+                footerLabel.setAlpha(0.95f);
                 footerLabel.animate().y(100).setDuration(fastAnimationSpeed * 2);
 
                 headerLabel.setPadding(0, 45, 0, 0);
@@ -137,10 +136,21 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
                     recommendedSettingLabel.animate().setDuration(fastAnimationSpeed).setInterpolator(timeInterpolator).alpha(0f).y(20);
                 }
             }
+
+            if (preferenceItem.getDataType().equals(Boolean.TYPE.toString())) {
+                Boolean b = ((Integer) viewFlipper.getChildAt(viewFlipper.getDisplayedChild()).getTag()) == 1;
+                preferenceItem.save(b.toString());
+            } else {
+                preferenceItem.save(preferenceItem.getPossibleValues().get(viewFlipper.getDisplayedChild()));
+            }
         }
 
         private void loadCurrentSettings() {
-            viewFlipper.setDisplayedChild(preferenceItem.getPossibleValues().indexOf(preferenceItem.getCurrentValue()));
+            if (preferenceItem.getDataType().equals(Boolean.TYPE.toString())) {
+                viewFlipper.setDisplayedChild(preferenceItem.getCurrentValue().equals(Boolean.toString(true)) ? 1 : 0);
+            } else {
+                viewFlipper.setDisplayedChild(preferenceItem.getPossibleValues().indexOf(preferenceItem.getCurrentValue()));
+            }
         }
 
         private void loadPossibleValues() {
