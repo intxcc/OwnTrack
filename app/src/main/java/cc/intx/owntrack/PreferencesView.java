@@ -44,7 +44,9 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
 
         private FrameLayout preferenceView;
         private ViewFlipper viewFlipper;
-        private TextView overlay;
+        private TextView recommendedSettingLabel;
+        private TextView headerLabel;
+        private TextView footerLabel;
 
         private Animation getNewAnimation(boolean inAnimation, boolean reverseAnimation) {
             Animation newAnimation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0,
@@ -71,15 +73,33 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
         }
 
         private void loadOverlay() {
-            overlay = new TextView(context);
-            preferenceView.addView(overlay);
-            overlay.setGravity(Gravity.CENTER_HORIZONTAL);
-            overlay.setAlpha(0f);
+            recommendedSettingLabel = new TextView(context);
+            headerLabel = new TextView(context);
+            footerLabel = new TextView(context);
 
-            overlay.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            preferenceView.addView(recommendedSettingLabel);
+            preferenceView.addView(headerLabel);
+            preferenceView.addView(footerLabel);
+
+            recommendedSettingLabel.setGravity(Gravity.CENTER_HORIZONTAL);
+            headerLabel.setGravity(Gravity.CENTER_HORIZONTAL);
+            footerLabel.setGravity(Gravity.CENTER_HORIZONTAL);
+            recommendedSettingLabel.setAlpha(0f);
+            headerLabel.setAlpha(0f);
+            footerLabel.setAlpha(0f);
+
+            recommendedSettingLabel.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                 @Override
                 public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
                     onFlip();
+                }
+            });
+
+            viewFlipper.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    footerLabel.animate().y(0).setDuration(fastAnimationSpeed * 2);
+                    return true;
                 }
             });
         }
@@ -87,19 +107,34 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
         private void onFlip() {
             TextView v = (TextView) viewFlipper.getCurrentView();
             if (v != null) {
-                overlay.setTextSize(TypedValue.COMPLEX_UNIT_PX, v.getTextSize() * 0.6f);
-                overlay.setTextColor(v.getCurrentTextColor());
-                overlay.setPadding(0, v.getBaseline() + 20, 0, 0);
+                recommendedSettingLabel.setTextSize(TypedValue.COMPLEX_UNIT_PX, v.getTextSize() * 0.6f);
+                headerLabel.setTextSize(TypedValue.COMPLEX_UNIT_PX, v.getTextSize() * 0.8f);
+                footerLabel.setTextSize(TypedValue.COMPLEX_UNIT_PX, v.getTextSize() * 0.6f);
+
+                recommendedSettingLabel.setTextColor(v.getCurrentTextColor());
+                headerLabel.setTextColor(v.getCurrentTextColor());
+                footerLabel.setTextColor(v.getCurrentTextColor());
+
+                recommendedSettingLabel.setPadding(0, v.getBaseline() + 20, 0, 0);
+
+                footerLabel.setPadding(0, v.getBaseline() + 40, 0, 0);
+                footerLabel.setText(preferenceItem.getDescriptionBottom());
+                footerLabel.setAlpha(0.9f);
+                footerLabel.animate().y(100).setDuration(fastAnimationSpeed * 2);
+
+                headerLabel.setPadding(0, 45, 0, 0);
+                headerLabel.setAlpha(0.95f);
+                headerLabel.setText(preferenceItem.getDescriptionTop());
             }
 
             if (viewFlipper.getDisplayedChild() == preferenceItem.getDefaultValue()) {
-                overlay.setText("recommended");
-                if (overlay.getAlpha() == 0f) {
-                    overlay.animate().setDuration(fastAnimationSpeed).setInterpolator(timeInterpolator).alpha(0.75f).y(-20);
+                recommendedSettingLabel.setText(context.getString(R.string.recommended));
+                if (recommendedSettingLabel.getAlpha() == 0f) {
+                    recommendedSettingLabel.animate().setDuration(fastAnimationSpeed).setInterpolator(timeInterpolator).alpha(0.75f).y(-20);
                 }
             } else {
-                if (overlay.getAlpha() > 0.7f) {
-                    overlay.animate().setDuration(fastAnimationSpeed).setInterpolator(timeInterpolator).alpha(0f).y(20);
+                if (recommendedSettingLabel.getAlpha() > 0.7f) {
+                    recommendedSettingLabel.animate().setDuration(fastAnimationSpeed).setInterpolator(timeInterpolator).alpha(0f).y(20);
                 }
             }
         }

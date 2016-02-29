@@ -90,6 +90,14 @@ public class Preferences {
         public String getCurrentValue() {
             return currentValue;
         }
+
+        public String getDescriptionTop() {
+            return descriptionTop;
+        }
+
+        public String getDescriptionBottom() {
+            return descriptionBottom;
+        }
     }
 
     private int getColor(int color) {
@@ -125,7 +133,7 @@ public class Preferences {
         possibleValues.add("30");
         possibleValues.add("45");
         possibleValues.add("60");
-        newItem = new Item("interval", Integer.TYPE.toString(), possibleValues, possibleValues.indexOf("5"), true, "Interval", "",
+        newItem = new Item("interval", Integer.TYPE.toString(), possibleValues, possibleValues.indexOf("5"), true, "Interval", "Time between localisation attempts",
                            " minutes",getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
     }
