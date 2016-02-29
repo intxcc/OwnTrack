@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
@@ -142,9 +141,8 @@ public class MainActivity extends AppCompatActivity {
 
         //TODO/////////////////////////////////////////////
         GridView gridview = (GridView) findViewById(R.id.gridview);
-        ArrayList<Preferences.PrefItem> pItems = preferences.getAll();
-
-        gridview.setAdapter(new PreferenceItems(this, pItems, TAG, animationInterpolator, fastAnimationSpeed));
+        ArrayList<Preferences.Item> preferenceItems = preferences.getItems();
+        gridview.setAdapter(new PreferencesView(this, preferenceItems, TAG, animationInterpolator, fastAnimationSpeed));
         ////////////////////////////////////////////
 
         //Called when the layout of the view overlay changes

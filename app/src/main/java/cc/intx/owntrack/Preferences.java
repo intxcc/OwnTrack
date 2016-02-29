@@ -2,105 +2,135 @@ package cc.intx.owntrack;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
-import android.util.Pair;
+import android.os.Build;
 
 import java.util.ArrayList;
 
 public class Preferences {
     //Debug tag
     public String TAG;
+    private Context context;
 
     private final String preferenceFile = "preferences";
-    private SharedPreferences preferences;
+    private SharedPreferences preferenceData;
 
-    private int orderC = 0;
-    public class PrefItem<T> {
+    private ArrayList<Item> preferenceItems;
+
+    public class Item {
         private String key;
-        private String defValue;
-        private String value;
-        private String type;
-        private int order;
+        private String currentValue;
+        private String dataType;
 
-        private ArrayList<Pair<String,T>> states = new ArrayList<>();
-        private boolean addCustom = false;
+        private String descriptionTop;
+        private String valueSuffix;
+        private String descriptionBottom;
 
-        public PrefItem(String key, T defValue) {
-            this.order = orderC++;
+        private int backgroundColor;
+        private int textColor;
+        private int activeBackgroundColor;
+        private int activeTextColor;
+
+        private int defaultValue;
+        private ArrayList<String> possibleValues;
+        private boolean isCustomizable = false;
+
+        public Item(String key, String dataType, ArrayList<String> possibleValues, int defaultValue, boolean isCustomizable, String descriptionTop,
+                    String descriptionBottom, String valueSuffix, int backgroundColor, int textColor, int activeBackgroundColor, int activeTextColor) {
             this.key = key;
-            this.type = defValue.getClass().getSimpleName();
-            this.defValue = defValue.toString();
-            this.value = preferences.getString(this.key, this.defValue);
+            this.dataType = dataType;
+            this.possibleValues = possibleValues;
+            this.defaultValue = defaultValue;
+            this.isCustomizable = isCustomizable;
+            this.currentValue = preferenceData.getString(this.key, this.possibleValues.get(this.defaultValue));
+            this.descriptionTop = descriptionTop;
+            this.descriptionBottom = descriptionBottom;
+            this.valueSuffix = valueSuffix;
+            this.backgroundColor = backgroundColor;
+            this.textColor = textColor;
+            this.activeBackgroundColor = activeBackgroundColor;
+            this.activeTextColor = activeTextColor;
         }
 
-        public void addState(String desc, T state) {
-            states.add(new Pair<String, T>(desc, state));
+        public ArrayList<String> getPossibleValues() {
+            return possibleValues;
         }
 
-        public void setAddCustom(boolean custom) {
-            addCustom = custom;
+        public int getBackgroundColor() {
+            return backgroundColor;
         }
 
-        public boolean getIsCustom() {
-            return addCustom;
+        public int getTextColor() {
+            return textColor;
         }
 
-        public ArrayList<Pair<String,T>> getStates() {
-            return states;
+        public int getActiveBackgroundColor() {
+            return activeBackgroundColor;
         }
 
-        public String getKey() {
-            return key;
+        public int getActiveTextColor() {
+            return activeTextColor;
         }
 
-        public String getDefValue() {
-            return defValue;
+        public String getDataType() {
+            return dataType;
         }
 
-        public String getType() {
-            return type;
+        public String getValueSuffix() {
+            return valueSuffix;
         }
 
-        public String getValue() {
-            return value;
+        public boolean getIsCustomizable() {
+            return isCustomizable;
+        }
+
+        public int getDefaultValue() {
+            return defaultValue;
+        }
+
+        public String getCurrentValue() {
+            return currentValue;
         }
     }
 
-    private static final ArrayList<PrefItem> prefItems = new ArrayList<>();
+    private int getColor(int color) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return context.getResources().getColor(color, null);
+        } else {
+            return context.getResources().getColor(color);
+        }
+    }
 
     public Preferences(Context context, String TAG) {
         this.TAG = TAG;
+        this.context = context;
 
-        prefItems.clear();
+        preferenceData = context.getSharedPreferences(preferenceFile, Context.MODE_PRIVATE);
+        preferenceItems = new ArrayList<>();
 
-        preferences = context.getSharedPreferences(preferenceFile, Context.MODE_PRIVATE);
+        ArrayList<String> possibleValues;
+        Item newItem;
 
-        PrefItem nItem = new PrefItem<>("Run service", true);
-        nItem.addState("Active", true);
-        nItem.addState("Not Active", false);
-        prefItems.add(nItem);
+        possibleValues = new ArrayList<>();
+        possibleValues.add(0, "Not active");
+        possibleValues.add(1, "Active");//default
+        newItem = new Item("autostart", Boolean.TYPE.toString(), possibleValues, 1, false, "Enable autostart", "", "",
+                           getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
+        preferenceItems.add(newItem);
 
-        nItem = new PrefItem<>("Enable autostart", true);
-        nItem.addState("Active", true);
-        nItem.addState("Not active", false);
-        prefItems.add(nItem);
-
-        nItem = new PrefItem<>("Interval", 5);
-        nItem.addState("min", 1);
-        nItem.addState("max", 60);
-        nItem.addState("1 minute", 1);
-        nItem.addState("2 minutes", 2);
-        nItem.addState("5 minutes", 5);
-        nItem.addState("10 minutes", 10);
-        nItem.addState("15 minutes", 15);
-        nItem.addState("30 minutes", 30);
-        nItem.addState("45 minutes", 45);
-        nItem.addState("60 minutes", 60);
-        nItem.setAddCustom(true);
-        prefItems.add(nItem);
+        possibleValues = new ArrayList<>();
+        possibleValues.add("2");
+        possibleValues.add("5");
+        possibleValues.add("10");
+        possibleValues.add("15");
+        possibleValues.add("30");
+        possibleValues.add("45");
+        possibleValues.add("60");
+        newItem = new Item("interval", Integer.TYPE.toString(), possibleValues, possibleValues.indexOf("5"), true, "Interval", "",
+                           " minutes",getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
+        preferenceItems.add(newItem);
     }
 
-    public ArrayList<PrefItem> getAll() {
-        return prefItems;
+    public ArrayList<Item> getItems() {
+        return preferenceItems;
     }
 }
