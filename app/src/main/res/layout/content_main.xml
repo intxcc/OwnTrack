@@ -94,6 +94,7 @@
                     android:text="@string/active_switch_text_started"
                     android:id="@+id/active_switcher_label_overlay"
                     android:textColor="@color/activeSwitch_oncolor"
+                    android:textStyle="bold"
                     android:singleLine="true"
                     android:textSize="15sp" />
             </FrameLayout>
@@ -108,6 +109,17 @@
                 android:theme="@style/ActiveButton"
                 android:trackTintMode="screen" />
         </RelativeLayout>
+
+        <GridView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/gridview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="10dp"
+            android:numColumns="3"
+            android:verticalSpacing="10dp"
+            android:horizontalSpacing="10dp"
+            android:columnWidth="50dp"
+            android:stretchMode="columnWidth" />
 
     </LinearLayout>
 

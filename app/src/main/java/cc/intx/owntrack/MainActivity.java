@@ -10,8 +10,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
+import android.widget.GridView;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     //Debug tag
@@ -27,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout switchLayoutF;
     private TextView switchTextOverlay;
     private Switch activeSwitch;
-    private Preferences preferences;
 
     //Extend control service class, so we can use this class variables more easily
     public class ServiceControl extends ServiceControlClass {
@@ -136,7 +138,14 @@ public class MainActivity extends AppCompatActivity {
         switchTextOverlay = (TextView) findViewById(R.id.active_switcher_label_overlay);
         switchLayoutF = (FrameLayout) findViewById(R.id.active_switcher_text_overlay);
         activeSwitch = (Switch) findViewById(R.id.active_switch);
-        preferences = new Preferences(this, TAG);
+        Preferences preferences = new Preferences(this, TAG);
+
+        //TODO/////////////////////////////////////////////
+        GridView gridview = (GridView) findViewById(R.id.gridview);
+        ArrayList<Preferences.PrefItem> pItems = preferences.getAll();
+
+        gridview.setAdapter(new PreferenceItems(this, pItems, TAG, animationInterpolator, fastAnimationSpeed));
+        ////////////////////////////////////////////
 
         //Called when the layout of the view overlay changes
         switchLayoutOverlay.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {

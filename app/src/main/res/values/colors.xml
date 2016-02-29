@@ -3,11 +3,16 @@
     <color name="colorPrimary">#e6393c</color>
     <color name="colorAccent">#50e6af</color>
 
+    <color name="active_green">#29cc78</color>
+    <color name="active_green_bg">#d9ffeb</color>
     <color name="hl_color">#ff4d4f</color>
 
     <color name="activeSwitch_offcolor_bg">#fff</color>
     <color name="activeSwitch_offcolor">#333</color>
 
-    <color name="activeSwitch_oncolor_bg">#d9ffeb</color>
-    <color name="activeSwitch_oncolor">#29cc78</color>
+    <color name="activeSwitch_oncolor">@color/active_green</color>
+    <color name="activeSwitch_oncolor_bg">@color/active_green_bg</color>
+
+    <color name="settingsflipper_bg">@color/activeSwitch_offcolor_bg</color>
+    <color name="settingsflipper">@color/activeSwitch_offcolor</color>
 </resources>
