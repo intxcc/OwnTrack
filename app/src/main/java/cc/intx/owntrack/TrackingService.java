@@ -63,7 +63,7 @@ public class TrackingService extends Service {
         //Debugging stuff
         Log.d(TAG, "We Run (" + isRunning + "). intent: " + (intent == null ? "null" : intent.toString()) + ", flags: " + flags + ", id: " + startId);
 
-        //If there is no pending intent, alarmmanager and we are running, schedule our tracking service
+        //If there is no pending intent, alarm manager and we are running, schedule our tracking service
         if (pendingIntent == null || alarmManager == null || !isRunning) {
             Log.d(TAG, "Rewrite alarm");
 

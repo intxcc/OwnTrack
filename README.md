@@ -14,7 +14,7 @@ The server checks authenticity of every data send to it and stores it in a datab
 
 __One main difference__ to other tracking apps is also, the fact, that to view the location data on a map, you don't have to give the data away to a third party, like google maps. There is a small python script, which downloads the openstreetmap tile that fits the given time frame you want to see and then draws the location points itself, without openstreetmap knowing where these points are.
 
-__Your location data does never leave your control. You don't have to trust any third party.__
+__Your location data does never leave your control. You don't have to trust any third or even second party.__
 
 ### What platforms are supported by OwnTrack?
 Currently OwnTrack supports only __Android 4.1 and above__ (API 16). _Windows Phone and iOS are not supported_. This is due to the fact, that they don't really allow the user to control the OS, like custom roms without gApps do. Therefore a privacy application for these platforms would be rather useless.

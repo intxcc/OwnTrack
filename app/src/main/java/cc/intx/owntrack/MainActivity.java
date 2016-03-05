@@ -2,10 +2,12 @@ package cc.intx.owntrack;
 
 import android.animation.TimeInterpolator;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
@@ -28,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout switchLayoutOverlay;
     private FrameLayout switchLayoutF;
     private TextView switchTextOverlay;
+    private GridView gridview;
     private Switch activeSwitch;
 
     //Extend control service class, so we can use this class variables more easily
@@ -123,6 +126,22 @@ public class MainActivity extends AppCompatActivity {
         serviceControl.unbind();
     }
 
+    /*
+    Adjust the number of columns shown in the settings view, so they don't get too big.
+    TODO The column numbers are hardcoded at the moment.
+     */
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        //Check orientation and change the column number
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            gridview.setNumColumns(5);
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            gridview.setNumColumns(3);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         TAG = getString(R.string.app_name); //Set debug string to app name
@@ -140,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         Preferences preferences = new Preferences(this, TAG);
 
         //Initialize settings
-        GridView gridview = (GridView) findViewById(R.id.gridview);
+        gridview = (GridView) findViewById(R.id.gridview);
         ArrayList<Preferences.Item> preferenceItems = preferences.getItems();
         gridview.setAdapter(new PreferencesView(this, preferenceItems, TAG, animationInterpolator, fastAnimationSpeed));
 
