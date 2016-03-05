@@ -20,7 +20,8 @@ public class TrackingService extends Service {
     private Preferences preferences;
     private ArrayList<Preferences.Item> preferenceItems;
     private ArrayList<String> preferenceItemsKeys;
-    Preferences.Item intervalPreference;
+    private Preferences.Item intervalPreference;
+    private LocationReceiver locationReceiver;
 
     //Indicates if the alarm manager is scheduled. If this is false the service will shutdown if the app is closed
     private boolean isRunning = false;
@@ -90,8 +91,6 @@ public class TrackingService extends Service {
 
     private void rewriteAlarm() {
         if (isRunning) {
-            Log.d(TAG, "Rewrite alarm to " + locationInterval + " minutes.");
-
             if (alarmManager == null) {
                 alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
             }
@@ -108,12 +107,13 @@ public class TrackingService extends Service {
                 alarmManager.cancel(pendingIntent);
             }
 
+            Log.d(TAG, "Rewrite alarm to " + locationInterval + " minutes.");
             /*
             Schedule tracking service. Inexact repeating to reduce battery draining, but *_WAKEUP to
             track while the phone sleeps, otherwise the repeat can be REALLY inexact if the phone is
             not used, which would make this app useless for a lot os usecases
              */
-            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 4000, locationInterval * 60 * 1000, pendingIntent);
+            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 5000, locationInterval * 60 * 1000, pendingIntent);
 
             changedInterval = false;
         }
@@ -129,6 +129,13 @@ public class TrackingService extends Service {
 
         changeIsRunning(true);//Change running state
         changedSettings();
+
+        if (intent != null) {
+            if (locationReceiver == null) {
+                locationReceiver = new LocationReceiver(TAG, this);
+            }
+            locationReceiver.getLocation();
+        }
 
         return START_STICKY;//Service will stay active even if the Activity is not
     }

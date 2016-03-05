@@ -1,9 +1,13 @@
 package cc.intx.owntrack;
 
+import android.Manifest;
 import android.animation.TimeInterpolator;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -109,16 +113,11 @@ public class MainActivity extends AppCompatActivity {
         serviceControl = new ServiceControl(this);
         preferencesView.setServiceControl(serviceControl);
 
-
-        /*//////////////////TODO check permissioons
-        if (checkCallingOrSelfPermission(android.Manifest.permission.RECEIVE_BOOT_COMPLETED) == PackageManager.PERMISSION_GRANTED) {
-            ac
-            //IntentFilter intentFilter = new IntentFilter(android.intent.action.BOOT_COMPLETED)
-            //registerReceiver(receiver, )
-        } else {
-            Log.d(TAG, "saaa");//TODO warn user
+        if (!(ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+            Log.d(TAG, "No permissions. Requesting.");
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
         }
-        //////////////////*/
     }
 
     @Override
