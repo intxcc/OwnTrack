@@ -17,7 +17,7 @@ public class Autostart extends BroadcastReceiver {
 
         //Open preferences and lookup if autostart is active or not
         SharedPreferences preferenceData = context.getSharedPreferences("preferences", Context.MODE_PRIVATE);
-        if (Boolean.parseBoolean(preferenceData.getString("autostart", Boolean.toString(true)))) {
+        if (preferenceData.getInt("autostart", 1) == 1) {
             Log.d(TAG, "Autostart activated.");
 
             //Autostart is active. Start service

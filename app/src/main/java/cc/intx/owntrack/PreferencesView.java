@@ -175,45 +175,62 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
                 }
             }
 
-            //Save the new current value to preference
+            //Save the new current value index to preference
             preferenceItem.save(viewFlipper.getDisplayedChild());
         }
 
         private void loadCurrentSettings() {
+            //Set the displayed Value TextView to the saved preference
             viewFlipper.setDisplayedChild(preferenceItem.getCurrentValue());
         }
 
+        //Load every possible value in its own TextView with a layout based on the value (e.g. green if active)
         private void loadPossibleValues() {
+            //Initialize min/max for integer values to change the color of the tile based on the value
             int min = -1;
             int max = -1;
             int step = -1;
+
+            //Temp variable for color operations
             float[] hsv = new float[3];
+
+            //Go through the list of possible values
             ArrayList<String> possibleValues = preferenceItem.getPossibleValues();
             for (String s: possibleValues) {
+                //If the preference is of type Integer change the layout based on the integer value
                 if (preferenceItem.getDataType().equals(Integer.TYPE.toString())) {
+                    //If min and max are not loaded yet, load then and calculate the step between each value
                     if (min < 0 || max < 0) {
                         min = Integer.parseInt(possibleValues.get(0));
                         max = Integer.parseInt(possibleValues.get(possibleValues.size() - 1));
                         step = 160 / (max - min);
 
+                        //Load the color as hsv, so we can perform color operation, to change the color based on the integer value
                         Color.colorToHSV(preferenceItem.getActiveBackgroundColor(), hsv);
                     }
 
+                    //Set the text color
                     int textColor = preferenceItem.getBackgroundColor();
+                    //Set the background color. The alpha channel is based on the integer value
                     int backgroundColor = Color.HSVToColor(240 - Integer.parseInt(s) * step, hsv);
 
+                    //Create the tile and add it to the flipper
                     valueTile(possibleValues.indexOf(s), s, backgroundColor, textColor);
                 }
 
+                //If the preference is of type boolean, change the layout based on if the value is true or false
                 if (preferenceItem.getDataType().equals(Boolean.TYPE.toString())) {
+                    //Use the active color if the value is true
                     int backgroundColor = possibleValues.indexOf(s) == 1 ? preferenceItem.getActiveBackgroundColor() : preferenceItem.getBackgroundColor();
                     int textColor = possibleValues.indexOf(s) == 1 ? preferenceItem.getActiveTextColor() : preferenceItem.getTextColor();
 
+                    //Create the tile and add it to the flipper
                     valueTile(possibleValues.indexOf(s), s,  backgroundColor, textColor);
                 }
             }
         }
 
+        //Create a new tile for a value and add iz to the flipper
         private void valueTile(int value, String text,  int backgroundColor, int textColor) {
             text = text + preferenceItem.getValueSuffix();
 
@@ -227,13 +244,20 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
             viewFlipper.addView(valueTile);
         }
 
+        //Set new animators based on the current flipper direction
         private void setAnimator(boolean reverse) {
             viewFlipper.setInAnimation(getNewAnimation(true, reverse));
             viewFlipper.setOutAnimation(getNewAnimation(false, reverse));
         }
 
+        /*
+        yMotion is used to split the Flipper in a top and bottom half, which is used when there are
+        more values than in rewind limit specified. If one presses on the top half we go to the
+        previous value and to the next view if pressing the bottom half.
+         */
         private float yMotion;
         private void setOnClick() {
+            //Set ontouch listener to set the yMotion variable
             viewFlipper.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -243,13 +267,16 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
             });
 
             viewFlipper.setOnClickListener(new View.OnClickListener() {
+                //Save the direction to go throuh the values
                 private boolean reverse = false;
 
                 @Override
                 public void onClick(View v) {
                     ViewFlipper f = (ViewFlipper) v;
 
+                    //Use different mechanics if there are too much values
                     if (f.getChildCount() < rewindLimit) {
+                        //Change the direction on the last/first value
                         if (f.getDisplayedChild() >= f.getChildCount() - 1) {
                             reverse = true;
                             setAnimator(true);
@@ -277,11 +304,13 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
                         }
                     }
 
+                    //Call onFlip to perform actions like saving the current value
                     onFlip();
                 }
             });
         }
 
+        //Interface for the adapter to receive the whole preference view
         public FrameLayout getView() {
             return preferenceView;
         }

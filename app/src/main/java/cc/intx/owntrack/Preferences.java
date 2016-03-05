@@ -186,7 +186,7 @@ public class Preferences {
         possibleValues.add("30");
         possibleValues.add("45");
         possibleValues.add("60");
-        newItem = new Item("interval", Integer.TYPE.toString(), possibleValues, possibleValues.indexOf("5"), true, "Set interval", "Time between localisation attempts",
+        newItem = new Item("interval", Integer.TYPE.toString(), possibleValues, 1, false, "Set interval", "Time between localisation attempts",
                            " minutes",getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
     }
