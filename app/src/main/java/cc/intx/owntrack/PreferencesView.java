@@ -32,6 +32,8 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
     private Interpolator timeInterpolator;
     private int fastAnimationSpeed;
 
+    private MainActivity.ServiceControl serviceControl;
+
     /*
     If the preference has more possible values than this, the user gets control how to go through
     all values. If there are less, then we go to the next value and at the end reverse the direction,
@@ -177,6 +179,10 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
 
             //Save the new current value index to preference
             preferenceItem.save(viewFlipper.getDisplayedChild());
+
+            if (serviceControl != null) {
+                serviceControl.changedSettings();
+            }
         }
 
         private void loadCurrentSettings() {
@@ -323,6 +329,10 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
         this.context = context;
         this.timeInterpolator = (Interpolator) timeInterpolator;
         this.fastAnimationSpeed = fastAnimationSpeed;
+    }
+
+    public void setServiceControl(MainActivity.ServiceControl serviceControl) {
+        this.serviceControl = serviceControl;
     }
 
     private FrameLayout createView(Preferences.Item preferenceItem) {

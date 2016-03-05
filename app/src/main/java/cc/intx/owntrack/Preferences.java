@@ -21,6 +21,7 @@ public class Preferences {
 
     //Arraylist which contains all preferences
     private ArrayList<Item> preferenceItems;
+    private ArrayList<String> preferenceItemsKeys;
 
     public class Item {
         private String key;//The key for identifying single preferences
@@ -125,6 +126,8 @@ public class Preferences {
         }
 
         public int getCurrentValue() {
+            get();
+
             return currentValue;
         }
 
@@ -158,10 +161,12 @@ public class Preferences {
         preferenceData = context.getSharedPreferences(preferenceFile, Context.MODE_PRIVATE);
         //Create the preference list
         preferenceItems = new ArrayList<>();
+        preferenceItemsKeys = new ArrayList<>();
 
         //Local variables, which we use to load the preferences
         ArrayList<String> possibleValues;
         Item newItem;
+        String currentKey;
 
         /*
         LOAD ALL PREFERENCE SETTINGS
@@ -171,14 +176,19 @@ public class Preferences {
 
         //Autostart setting
         possibleValues = new ArrayList<>();
+        currentKey = "autostart";
+
         possibleValues.add("Not active");
         possibleValues.add("Active");//default
-        newItem = new Item("autostart", Boolean.TYPE.toString(), possibleValues, 1, false, "Enable autostart", "Service will restart after reboot", "",
+        newItem = new Item(currentKey, Boolean.TYPE.toString(), possibleValues, 1, false, "Enable autostart", "Service will restart after reboot", "",
                            getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
+        preferenceItemsKeys.add(currentKey);
 
         //Location retrieve interval setting
         possibleValues = new ArrayList<>();
+        currentKey = "interval";
+
         possibleValues.add("2");
         possibleValues.add("5");
         possibleValues.add("10");
@@ -186,9 +196,15 @@ public class Preferences {
         possibleValues.add("30");
         possibleValues.add("45");
         possibleValues.add("60");
-        newItem = new Item("interval", Integer.TYPE.toString(), possibleValues, 1, false, "Set interval", "Time between localisation attempts",
+        newItem = new Item(currentKey, Integer.TYPE.toString(), possibleValues, 1, false, "Set interval", "Time between localisation attempts",
                            " minutes",getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
+        preferenceItemsKeys.add(currentKey);
+    }
+
+    //Get all preference keys
+    public ArrayList<String> getKeys() {
+        return preferenceItemsKeys;
     }
 
     //Get all preferences

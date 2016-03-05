@@ -9,15 +9,24 @@ import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 public class TrackingService extends Service {
     private String TAG; //Debug tag
 
     //The pending intent is going to get called from the alarm manager
     private PendingIntent pendingIntent;
     private AlarmManager alarmManager;
+    private Preferences preferences;
+    private ArrayList<Preferences.Item> preferenceItems;
+    private ArrayList<String> preferenceItemsKeys;
+    Preferences.Item intervalPreference;
 
     //Indicates if the alarm manager is scheduled. If this is false the service will shutdown if the app is closed
     private boolean isRunning = false;
+
+    private int locationInterval = -1;
+    private boolean changedInterval = false;
 
     //Binder object to give the app an interface for communication
     private final IBinder serviceBinder = new ServiceBinder();
@@ -55,6 +64,61 @@ public class TrackingService extends Service {
         return false;//Do not call rebind on rebind, but bind
     }
 
+    public void changedSettings() {
+        if (preferences == null) {
+            preferences = new Preferences(this, TAG);
+            preferenceItemsKeys = preferences.getKeys();
+            preferenceItems = preferences.getItems();
+
+            intervalPreference = preferenceItems.get(preferenceItemsKeys.indexOf("interval"));
+
+            locationInterval = Integer.parseInt(intervalPreference.getPossibleValues().get(intervalPreference.getCurrentValue()));
+            changedInterval = true;
+        } else {
+            if (locationInterval != Integer.parseInt(intervalPreference.getPossibleValues().get(intervalPreference.getCurrentValue()))) {
+                locationInterval = Integer.parseInt(intervalPreference.getPossibleValues().get(intervalPreference.getCurrentValue()));
+                changedInterval = true;
+
+                Log.d(TAG, "Changed interval");
+            }
+        }
+
+        if (changedInterval) {
+            rewriteAlarm();
+        }
+    }
+
+    private void rewriteAlarm() {
+        if (isRunning) {
+            Log.d(TAG, "Rewrite alarm to " + locationInterval + " minutes.");
+
+            if (alarmManager == null) {
+                alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            }
+
+            if (pendingIntent == null) {
+                //Create pending intend for the alarm manager to call TODO MAYBE is the service intend created correctly?
+                Intent serviceIntent = new Intent(this, TrackingService.class);//Create new intent, to ignore the callee intend (autostart or app)
+                pendingIntent = PendingIntent.getService(this, 998566, serviceIntent, 0);
+            }
+
+            if (alarmManager != null && pendingIntent != null) {
+                Log.d(TAG, "Cancel all alarms for rewrite.");
+
+                alarmManager.cancel(pendingIntent);
+            }
+
+            /*
+            Schedule tracking service. Inexact repeating to reduce battery draining, but *_WAKEUP to
+            track while the phone sleeps, otherwise the repeat can be REALLY inexact if the phone is
+            not used, which would make this app useless for a lot os usecases
+             */
+            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 4000, locationInterval * 60 * 1000, pendingIntent);
+
+            changedInterval = false;
+        }
+    }
+
     /*
     Is called on start and from the alarm manager
      */
@@ -63,23 +127,8 @@ public class TrackingService extends Service {
         //Debugging stuff
         Log.d(TAG, "We Run (" + isRunning + "). intent: " + (intent == null ? "null" : intent.toString()) + ", flags: " + flags + ", id: " + startId);
 
-        //If there is no pending intent, alarm manager and we are running, schedule our tracking service
-        if (pendingIntent == null || alarmManager == null || !isRunning) {
-            Log.d(TAG, "Rewrite alarm");
-
-            //Create pending intend for the alarm manager to call TODO MAYBE is the service intend created correctly?
-            Intent serviceIntent = new Intent(this, TrackingService.class);//Create new intent, to ignore the callee intend (autostart or app)
-            pendingIntent = PendingIntent.getService(this, 998566, serviceIntent, 0);
-
-            /*
-            Schedule tracking service. Inexact repeating to reduce battery draining, but *_WAKEUP to
-            track while the phone sleeps, otherwise the repeat can be REALLY inexact if the phone is
-            not used, which would make this app useless for a lot os usecases TODO preferences for repeating time
-             */
-            alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 4000, 1 * 60 * 1000, pendingIntent);
-        }
         changeIsRunning(true);//Change running state
+        changedSettings();
 
         return START_STICKY;//Service will stay active even if the Activity is not
     }

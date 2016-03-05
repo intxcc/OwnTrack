@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView switchTextOverlay;
     private GridView gridview;
     private Switch activeSwitch;
+    PreferencesView preferencesView;
 
     //Extend control service class, so we can use this class variables more easily
     public class ServiceControl extends ServiceControlClass {
@@ -106,6 +107,8 @@ public class MainActivity extends AppCompatActivity {
 
         //Create new control instance, which binds to the service gets its state
         serviceControl = new ServiceControl(this);
+        preferencesView.setServiceControl(serviceControl);
+
 
         /*//////////////////TODO check permissioons
         if (checkCallingOrSelfPermission(android.Manifest.permission.RECEIVE_BOOT_COMPLETED) == PackageManager.PERMISSION_GRANTED) {
@@ -161,7 +164,8 @@ public class MainActivity extends AppCompatActivity {
         //Initialize settings
         gridview = (GridView) findViewById(R.id.gridview);
         ArrayList<Preferences.Item> preferenceItems = preferences.getItems();
-        gridview.setAdapter(new PreferencesView(this, preferenceItems, TAG, animationInterpolator, fastAnimationSpeed));
+        preferencesView = new PreferencesView(this, preferenceItems, TAG, animationInterpolator, fastAnimationSpeed);
+        gridview.setAdapter(preferencesView);
 
         //Called when the layout of the view overlay changes
         switchLayoutOverlay.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {

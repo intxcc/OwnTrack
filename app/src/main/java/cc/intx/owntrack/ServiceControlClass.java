@@ -127,6 +127,12 @@ abstract class ServiceControlClass {
         }
     }
 
+    public void changedSettings() {
+        if (trackingService != null) {
+            trackingService.changedSettings();
+        }
+    }
+
     //Get active state
     public boolean getActive() {
         return isServiceActive;
