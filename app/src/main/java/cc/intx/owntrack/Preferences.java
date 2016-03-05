@@ -41,9 +41,12 @@ public class Preferences {
         private ArrayList<String> possibleValues;//A list of all possible values
         private boolean isCustomizable = false;//TODO True is the user should be able to save a custom value
 
+        private boolean isSavedPreference = false;
+
         //The constructor sets all variables of this preference
-        public Item(String key, String dataType, ArrayList<String> possibleValues, int defaultValue, boolean isCustomizable, String descriptionTop,
+        public Item(boolean isSavedPreference, String key, String dataType, ArrayList<String> possibleValues, int defaultValue, boolean isCustomizable, String descriptionTop,
                     String descriptionBottom, String valueSuffix, int backgroundColor, int textColor, int activeBackgroundColor, int activeTextColor) {
+            this.isSavedPreference = isSavedPreference;
             this.key = key;
             this.dataType = dataType;
             this.possibleValues = possibleValues;
@@ -60,30 +63,40 @@ public class Preferences {
             get();
         }
 
+        public void setValue(String value) {
+            this.possibleValues.add(value);
+        }
+
         public void get() {
-            //Get index of current value
-            this.currentValue = preferenceData.getInt(this.key, this.defaultValue);
+            if (isSavedPreference) {
+                //Get index of current value
+                this.currentValue = preferenceData.getInt(this.key, this.defaultValue);
+            }
         }
 
         //Saves the current value whenever the current tile changes
         public boolean save(int index) {
-            //Load preference editor
-            SharedPreferences.Editor editor = preferenceData.edit();
-            editor.putInt(this.key, index);
+            if (isSavedPreference) {
+                //Load preference editor
+                SharedPreferences.Editor editor = preferenceData.edit();
+                editor.putInt(this.key, index);
 
-            //Commit the change
-            Boolean commited = editor.commit();
+                //Commit the change
+                Boolean commited = editor.commit();
 
-            //Check if the commit was successful
-            if (!commited) {
-                Log.d(TAG, "Couldn't save settings.");
+                //Check if the commit was successful
+                if (!commited) {
+                    Log.d(TAG, "Couldn't save settings.");
+                } else {
+                    //Change the current value only if the commit was successful
+                    currentValue = index;
+                }
+
+                //Return if successful or not
+                return commited;
             } else {
-                //Change the current value only if the commit was successful
-                currentValue = index;
+                return true;
             }
-
-            //Return if successful or not
-            return commited;
         }
 
         /*
@@ -180,7 +193,7 @@ public class Preferences {
 
         possibleValues.add("Not active");
         possibleValues.add("Active");//default
-        newItem = new Item(currentKey, Boolean.TYPE.toString(), possibleValues, 1, false, "Enable autostart", "Service will restart after reboot", "",
+        newItem = new Item(true, currentKey, Boolean.TYPE.toString(), possibleValues, 1, false, "Enable autostart", "Service will restart after reboot", "",
                            getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);
@@ -196,8 +209,18 @@ public class Preferences {
         possibleValues.add("30");
         possibleValues.add("45");
         possibleValues.add("60");
-        newItem = new Item(currentKey, Integer.TYPE.toString(), possibleValues, 1, false, "Set interval", "Time between localisation attempts",
+        newItem = new Item(true, currentKey, Integer.TYPE.toString(), possibleValues, 1, false, "Set interval", "Time between localisation attempts",
                            " minutes",getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
+        preferenceItems.add(newItem);
+        preferenceItemsKeys.add(currentKey);
+
+        possibleValues = new ArrayList<>();
+        currentKey = "lastlocation";
+
+        possibleValues.add("none");
+        possibleValues.add("none");
+        newItem = new Item(false, currentKey, Boolean.TYPE.toString(), possibleValues, -1, false, "Last locations", "Shows last two location updates", "",
+                getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper));
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);
     }

@@ -86,6 +86,7 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
 
             //The main component of a PreferenceView is this ViewFlipper which holds all possible values
             viewFlipper = new ViewFlipper(context);
+            viewFlipper.setId((preferenceItem.getKey() + "flipper").hashCode());
 
             //A wrapper to show additional information like descriptions
             preferenceView = new FrameLayout(context);
@@ -153,7 +154,7 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
                 footerLabel.setTextColor(v.getCurrentTextColor());
 
                 //Position the additional info based on the text baseline of the active value
-                recommendedSettingLabel.setPadding(0, v.getBaseline() + 20, 0, 0);
+                recommendedSettingLabel.setPadding(0, v.getBaseline() + 30, 0, 0);
 
                 footerLabel.setPadding(20, v.getBaseline() + 40, 20, 0);
                 footerLabel.setText(preferenceItem.getDescriptionBottom());

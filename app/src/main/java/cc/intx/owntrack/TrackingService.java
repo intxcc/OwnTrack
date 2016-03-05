@@ -56,6 +56,7 @@ public class TrackingService extends Service {
     public boolean onUnbind(Intent intent) {
         Log.d(TAG, "Unbound");
         isRunningListener = null;//Remove the status change listener, which was passed from the app
+        newLocationListener = null;
 
         //If the app closes/unbinds and has chosen to stop the service, stop now
         if (!isRunning) {
@@ -134,7 +135,7 @@ public class TrackingService extends Service {
             if (locationReceiver == null) {
                 locationReceiver = new LocationReceiver(TAG, this);
             }
-            locationReceiver.getLocation();
+            locationReceiver.getLocation(newLocationListener);
         }
 
         return START_STICKY;//Service will stay active even if the Activity is not
@@ -173,6 +174,25 @@ public class TrackingService extends Service {
 
         if (isRunningListener != null) {
             isRunningListener.run();
+        }
+    }
+
+    private Runnable newLocationListener;
+    public void setNewLocationListener(Runnable runnable) {
+        newLocationListener = runnable;
+    }
+
+    public void gotNewLocation() {
+        if (newLocationListener != null) {
+            newLocationListener.run();
+        }
+    }
+
+    public LocationReceiver.LocationData getLastLocation() {
+        if (locationReceiver != null) {
+            return locationReceiver.getLastLocation();
+        } else {
+            return null;
         }
     }
 

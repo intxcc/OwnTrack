@@ -36,6 +36,20 @@ abstract class ServiceControlClass {
         }
     };
 
+    private Runnable newLocationListener = new Runnable() {
+        @Override
+        public void run() {
+            if (trackingService != null) {
+                LocationReceiver.LocationData locationData = trackingService.getLastLocation();
+                if (locationData != null) {
+                    setLastLocation(locationData);
+                }
+            }
+        }
+    };
+
+    abstract void setLastLocation(LocationReceiver.LocationData locationData);
+
     //This represents the binding state of the service connection. This does not indicate an active service
     private boolean isBound = false;
     /*
@@ -54,6 +68,7 @@ abstract class ServiceControlClass {
 
             //Pass status change listener
             trackingService.setIsRunningListener(changeStatusListener);
+            trackingService.setNewLocationListener(newLocationListener);
 
             //Change connection state
             isBound = true;

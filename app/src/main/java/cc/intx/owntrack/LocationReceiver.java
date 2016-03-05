@@ -36,9 +36,11 @@ public class LocationReceiver {
     private Location networkLocation;
     private Location gpsLocation;
 
+    private JSONArray locationList;
+
     private int abortLocationUpdateTime = 10 * 1000;//10 seconds
 
-    private class LocationData {
+    public class LocationData {
         JSONObject locationData = new JSONObject();
 
         public LocationData(Location location) {
@@ -89,7 +91,9 @@ public class LocationReceiver {
         networkPermissions = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
-    public void getLocation() {
+    private Runnable newLocationListener;
+    public void getLocation(Runnable newLocationListener) {
+        this.newLocationListener = newLocationListener;
         getPermissions();
 
         isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && gpsPermissions;
@@ -165,10 +169,12 @@ public class LocationReceiver {
     }
 
     private void saveLocation(Location location) {
-        JSONArray locationList = getLocationList();
+        locationList = getLocationList();
 
         LocationData locationData = new LocationData(location);
         locationList.put(locationData.getJSON());
+
+        this.lastLocation = locationData;
 
         try {
             FileOutputStream fileOutputStream = context.openFileOutput(LOCATION_LIST_FILENAME, Context.MODE_PRIVATE);
@@ -191,6 +197,10 @@ public class LocationReceiver {
 
             saveLocation(newLocation);
         }
+
+        if (newLocationListener != null) {
+            newLocationListener.run();
+        }
     }
 
     public LocationReceiver(String TAG, Context context) {
@@ -201,5 +211,10 @@ public class LocationReceiver {
         locationListener = new TrackingLocationListener();
 
         getPermissions();
+    }
+
+    private LocationData lastLocation;
+    public LocationData getLastLocation() {
+        return lastLocation;
     }
 }
