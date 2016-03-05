@@ -3,6 +3,7 @@ package cc.intx.owntrack;
 import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -175,25 +176,11 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
             }
 
             //Save the new current value to preference
-            if (preferenceItem.getDataType().equals(Boolean.TYPE.toString())) {
-                /*
-                If it is a boolean we get the current value from the index of the current view. The
-                "true" value is always(!) at index 1.
-                 */
-                Boolean b = ((Integer) viewFlipper.getChildAt(viewFlipper.getDisplayedChild()).getTag()) == 1;
-                preferenceItem.save(b.toString());
-            } else {
-                //TODO IMPORTANT SAVE THE index and not the string! as this could change based on language settings!!!!
-                preferenceItem.save(preferenceItem.getPossibleValues().get(viewFlipper.getDisplayedChild()));
-            }
+            preferenceItem.save(viewFlipper.getDisplayedChild());
         }
 
         private void loadCurrentSettings() {
-            if (preferenceItem.getDataType().equals(Boolean.TYPE.toString())) {
-                viewFlipper.setDisplayedChild(preferenceItem.getCurrentValue().equals(Boolean.toString(true)) ? 1 : 0);
-            } else {
-                viewFlipper.setDisplayedChild(preferenceItem.getPossibleValues().indexOf(preferenceItem.getCurrentValue()));
-            }
+            viewFlipper.setDisplayedChild(preferenceItem.getCurrentValue());
         }
 
         private void loadPossibleValues() {

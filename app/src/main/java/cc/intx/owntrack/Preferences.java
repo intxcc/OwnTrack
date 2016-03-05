@@ -24,7 +24,7 @@ public class Preferences {
 
     public class Item {
         private String key;//The key for identifying single preferences
-        private String currentValue;//Contains always the current value
+        private int currentValue;//Contains always the current value
         private String dataType;//Contains a string representing the datatype. This string is created with e.g. Boolean.TYPE.toString()
 
         private String descriptionTop;//The description to show above the value on the settings tile
@@ -48,7 +48,6 @@ public class Preferences {
             this.possibleValues = possibleValues;
             this.defaultValue = defaultValue;
             this.isCustomizable = isCustomizable;//TODO Implement custom settings
-            this.currentValue = preferenceData.getString(this.key, this.possibleValues.get(this.defaultValue));
             this.descriptionTop = descriptionTop;
             this.descriptionBottom = descriptionBottom;
             this.valueSuffix = valueSuffix;
@@ -56,13 +55,20 @@ public class Preferences {
             this.textColor = textColor;
             this.activeBackgroundColor = activeBackgroundColor;
             this.activeTextColor = activeTextColor;
+
+            get();
+        }
+
+        public void get() {
+            //Get index of current value
+            this.currentValue = preferenceData.getInt(this.key, this.defaultValue);
         }
 
         //Saves the current value whenever the current tile changes
-        public boolean save(String value) {
+        public boolean save(int index) {
             //Load preference editor
             SharedPreferences.Editor editor = preferenceData.edit();
-            editor.putString(this.key, value);
+            editor.putInt(this.key, index);
 
             //Commit the change
             Boolean commited = editor.commit();
@@ -72,7 +78,7 @@ public class Preferences {
                 Log.d(TAG, "Couldn't save settings.");
             } else {
                 //Change the current value only if the commit was successful
-                currentValue = value;
+                currentValue = index;
             }
 
             //Return if successful or not
@@ -118,7 +124,7 @@ public class Preferences {
             return defaultValue;
         }
 
-        public String getCurrentValue() {
+        public int getCurrentValue() {
             return currentValue;
         }
 
@@ -165,8 +171,8 @@ public class Preferences {
 
         //Autostart setting
         possibleValues = new ArrayList<>();
-        possibleValues.add(0, "Not active");
-        possibleValues.add(1, "Active");//default
+        possibleValues.add("Not active");
+        possibleValues.add("Active");//default
         newItem = new Item("autostart", Boolean.TYPE.toString(), possibleValues, 1, false, "Enable autostart", "Service will restart after reboot", "",
                            getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
