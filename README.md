@@ -21,3 +21,6 @@ Currently OwnTrack supports only __Android 4.1 and above__ (API 16). _Windows Ph
 
 ### What is the current development state?
 OwnTrack is currently __not working__. Please be patient until the development for the first version is finished. Thank you!
+
+## Screenshots
+<img align="left" src="/screenshots/2016-03-05.png?raw=true" alt="Latest screenshot" />
