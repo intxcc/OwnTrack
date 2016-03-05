@@ -30,7 +30,9 @@ abstract class ServiceControlClass {
         @Override
         public void run() {
             //React to status changes
-            changeActiveStatus(trackingService.getIsRunning());
+            if (trackingService != null) {
+                changeActiveStatus(trackingService.getIsRunning());
+            }
         }
     };
 
