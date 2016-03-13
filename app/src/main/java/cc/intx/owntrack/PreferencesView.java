@@ -3,7 +3,6 @@ package cc.intx.owntrack;
 import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -148,9 +147,29 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
                 headerLabel.setTextSize(TypedValue.COMPLEX_UNIT_PX, v.getTextSize() * 0.8f);
                 footerLabel.setTextSize(TypedValue.COMPLEX_UNIT_PX, v.getTextSize() * 0.6f);
 
-                recommendedSettingLabel.setTextColor(v.getCurrentTextColor());
-                headerLabel.setTextColor(v.getCurrentTextColor());
-                footerLabel.setTextColor(v.getCurrentTextColor());
+                //Also for smoother transition
+                if (recommendedSettingLabel.getAlpha() <= 0.1f) {
+                    recommendedSettingLabel.setTextColor(v.getCurrentTextColor());
+                }
+
+                //Added for smoother transition between flipper views
+                if (headerLabel.getCurrentTextColor() != v.getCurrentTextColor()) {
+                    final TextView finalV = v;
+                    footerLabel.animate().alpha(0f).setDuration(Math.round(fastAnimationSpeed * 0.75));
+                    headerLabel.animate().alpha(0f).y(-100).setDuration(Math.round(fastAnimationSpeed * 0.75)).withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            headerLabel.setTextColor(finalV.getCurrentTextColor());
+                            footerLabel.setTextColor(finalV.getCurrentTextColor());
+
+                            headerLabel.animate().alpha(1f).y(0).setDuration(Math.round(fastAnimationSpeed * 0.75));
+                            footerLabel.animate().alpha(1f).setDuration(Math.round(fastAnimationSpeed * 0.75));
+                        }
+                    });
+                } else {
+                    headerLabel.setTextColor(v.getCurrentTextColor());
+                    footerLabel.setTextColor(v.getCurrentTextColor());
+                }
 
                 //Position the additional info based on the text baseline of the active value
                 recommendedSettingLabel.setPadding(0, v.getBaseline() + 20, 0, 0);
