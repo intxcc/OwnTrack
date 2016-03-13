@@ -217,6 +217,10 @@ public class LocationReceiver {
         getPermissions();
     }
 
+    public int getListSize() {
+        return locationList.length();
+    }
+
     private LocationData lastLocation;
     public LocationData getLastLocation() {
         if (locationList == null) {

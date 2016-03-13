@@ -120,6 +120,14 @@ abstract class ServiceControlClass {
         }
     }
 
+    public int getToSendLocationsNumber() {
+        if (trackingService != null) {
+            return trackingService.getToSendLocationsNumber();
+        } else {
+            return 0;
+        }
+    }
+
     /*
     Start the service and if we are not already bound or we lost connection
      */

@@ -166,6 +166,17 @@
                 android:gravity="bottom|end"
                 android:id="@+id/lastLocationFootPreview" />
 
+            <TextView
+                android:alpha="0"
+                android:layout_row="2"
+                android:translationY="-15dp"
+                android:textSize="12sp"
+                android:layout_column="2"
+                android:text=""
+                android:layout_gravity="fill"
+                android:gravity="bottom|end"
+                android:id="@+id/lastLocationToSendTextView" />
+
         </GridLayout>
 
         <LinearLayout

@@ -20,6 +20,7 @@ public class StatusClass {
     private TextView lastLocationTopPreview;
     private TextView lastLocationBotPreview;
     private TextView lastLocationFootPreview;
+    private TextView lastLocationToSendTextView;
     private FrameLayout mapOverlay;
     private LinearLayout lastLocationDetails;
 
@@ -36,6 +37,7 @@ public class StatusClass {
         lastLocationTopPreview = (TextView) activity.findViewById(R.id.lastLocationTopPreview);
         lastLocationBotPreview = (TextView) activity.findViewById(R.id.lastLocationBotPreview);
         lastLocationFootPreview = (TextView) activity.findViewById(R.id.lastLocationFootPreview);
+        lastLocationToSendTextView = (TextView) activity.findViewById(R.id.lastLocationToSendTextView);
         mapOverlay = (FrameLayout) activity.findViewById(R.id.mapOverlay);
         lastLocationDetails = (LinearLayout) activity.findViewById(R.id.lastLocationDetails);
         serviceControl.setLastLocationListener(new Runnable() {
@@ -59,17 +61,21 @@ public class StatusClass {
                 lastLocationBotPreview.setText(botText);
 
 
+                String toSendString = serviceControl.getToSendLocationsNumber() + " in send list";
+                lastLocationToSendTextView.setText(toSendString);
+
+
                 long dateDiff = (new java.util.Date()).getTime() - (new java.util.Date(lastLocation.getJSON().getLong("time"))).getTime();
 
                 String footText;
                 if (dateDiff <= 60 * 1000) {
-                    footText = (dateDiff / 1000) + " SECONDS AGO";
+                    footText = (dateDiff / 1000) + " seconds ago";
                 } else if (dateDiff <= 60 * 60 * 1000) {
-                    footText = (dateDiff / (60 * 1000)) + " MINUTES AGO";
+                    footText = (dateDiff / (60 * 1000)) + " minutes ago";
                 } else if (dateDiff <= 99 * 60 * 60 * 1000) {
-                    footText = (dateDiff / (60 * 60 * 1000)) + " HOURS AGO";
+                    footText = (dateDiff / (60 * 60 * 1000)) + " hours ago";
                 } else {
-                    footText = "LONG AGO";
+                    footText = "long ago";
                 }
 
                 lastLocationFootPreview.setText(footText);
@@ -126,6 +132,7 @@ public class StatusClass {
             lastLocationDetails.startAnimation(animation);
             objectWidthAnimator.start();
 
+            lastLocationToSendTextView.animate().alpha(0.6f).setDuration(extendingSpeed);
             mapOverlay.animate().alpha(1f).setDuration(extendingSpeed);
 
             extended = true;
@@ -136,6 +143,7 @@ public class StatusClass {
             lastLocationDetails.startAnimation(animation);
             objectWidthAnimator.reverse();
 
+            lastLocationToSendTextView.animate().alpha(0f).setDuration(extendingSpeed);
             mapOverlay.animate().alpha(0f).setDuration(extendingSpeed);
 
             extended = false;

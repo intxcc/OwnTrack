@@ -200,6 +200,14 @@ public class TrackingService extends Service {
         }
     }
 
+    public int getToSendLocationsNumber() {
+        if (locationReceiver != null) {
+            return locationReceiver.getListSize();
+        } else {
+            return 0;
+        }
+    }
+
     //Public interface for checking status
     public boolean getIsRunning() {
         return isRunning;
