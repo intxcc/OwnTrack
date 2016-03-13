@@ -41,6 +41,11 @@ public class TrackingService extends Service {
     public void onCreate() {
         TAG = getString(R.string.app_name); //Set debug string to app name
 
+        if (locationReceiver == null) {
+            locationReceiver = new LocationReceiver(TAG, this);
+            Log.d(TAG, "Created location receiver to get last location");
+        }
+
         Log.d(TAG, "Created service");
     }
 
@@ -120,6 +125,19 @@ public class TrackingService extends Service {
         }
     }
 
+    private Runnable newLocationListener;
+    public void setNewLocationListener(Runnable runnable) {
+        newLocationListener = runnable;
+    }
+    private Runnable newLocationListenerWrapper = new Runnable() {
+        @Override
+        public void run() {
+            if (newLocationListener != null) {
+                newLocationListener.run();
+            }
+        }
+    };
+
     /*
     Is called on start and from the alarm manager
      */
@@ -132,10 +150,7 @@ public class TrackingService extends Service {
         changedSettings();
 
         if (intent != null) {
-            if (locationReceiver == null) {
-                locationReceiver = new LocationReceiver(TAG, this);
-            }
-            locationReceiver.getLocation(newLocationListener);
+            locationReceiver.getLocation(newLocationListenerWrapper);
         }
 
         return START_STICKY;//Service will stay active even if the Activity is not
@@ -174,17 +189,6 @@ public class TrackingService extends Service {
 
         if (isRunningListener != null) {
             isRunningListener.run();
-        }
-    }
-
-    private Runnable newLocationListener;
-    public void setNewLocationListener(Runnable runnable) {
-        newLocationListener = runnable;
-    }
-
-    public void gotNewLocation() {
-        if (newLocationListener != null) {
-            newLocationListener.run();
         }
     }
 

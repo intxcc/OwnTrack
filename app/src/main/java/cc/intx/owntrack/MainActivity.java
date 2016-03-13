@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private GridView gridview;
     private Switch activeSwitch;
     private PreferencesView preferencesView;
+    private StatusClass statusClass;
 
     //Extend control service class, so we can use this class variables more easily
     public class ServiceControl extends ServiceControlClass {
@@ -50,10 +51,6 @@ public class MainActivity extends AppCompatActivity {
         public void onChangeStatus() {
             //Implement onstatuschange action
             onServiceStatusChange();
-        }
-
-        public void setLastLocation(LocationReceiver.LocationData locationData) {
-            Log.d(TAG, "New location.");
         }
     }
     private ServiceControl serviceControl;
@@ -131,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             window.setStatusBarColor(this.getResources().getColor(R.color.colorPrimaryDark, null));
         }
+
+        statusClass = new StatusClass(this, TAG, serviceControl);
     }
 
     @Override
@@ -190,6 +189,8 @@ public class MainActivity extends AppCompatActivity {
                  */
                 if ((right - left) != (oldRight - oldLeft)) {
                     switchOverlayRebuild();
+                    statusClass.onHeadClick();
+                    statusClass.onHeadClick();
                 }
             }
         });

@@ -3,6 +3,7 @@ package cc.intx.owntrack;
 import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;

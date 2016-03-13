@@ -36,19 +36,19 @@ abstract class ServiceControlClass {
         }
     };
 
+    private Runnable lastLocationListener;
     private Runnable newLocationListener = new Runnable() {
         @Override
         public void run() {
-            if (trackingService != null) {
-                LocationReceiver.LocationData locationData = trackingService.getLastLocation();
-                if (locationData != null) {
-                    setLastLocation(locationData);
-                }
+            if (trackingService != null && lastLocationListener != null) {
+                lastLocationListener.run();
             }
         }
     };
 
-    abstract void setLastLocation(LocationReceiver.LocationData locationData);
+    public void setLastLocationListener(Runnable runnable) {
+        this.lastLocationListener = runnable;
+    }
 
     //This represents the binding state of the service connection. This does not indicate an active service
     private boolean isBound = false;
@@ -69,6 +69,10 @@ abstract class ServiceControlClass {
             //Pass status change listener
             trackingService.setIsRunningListener(changeStatusListener);
             trackingService.setNewLocationListener(newLocationListener);
+
+            if (lastLocationListener != null) {
+                lastLocationListener.run();
+            }
 
             //Change connection state
             isBound = true;
@@ -106,6 +110,14 @@ abstract class ServiceControlClass {
         context.unbindService(serviceConnection);
         trackingService = null;
         isBound = false;
+    }
+
+    public LocationReceiver.LocationData getLastLocation() {
+        if (trackingService != null) {
+            return trackingService.getLastLocation();
+        } else {
+            return null;
+        }
     }
 
     /*

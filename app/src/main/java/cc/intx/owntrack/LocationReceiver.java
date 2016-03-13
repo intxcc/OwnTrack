@@ -43,6 +43,10 @@ public class LocationReceiver {
     public class LocationData {
         JSONObject locationData = new JSONObject();
 
+        public LocationData(JSONObject jsonObject) {
+            locationData = jsonObject;
+        }
+
         public LocationData(Location location) {
             try {
                 this.locationData.put("lat", location.getLatitude());
@@ -215,6 +219,18 @@ public class LocationReceiver {
 
     private LocationData lastLocation;
     public LocationData getLastLocation() {
+        if (locationList == null) {
+            locationList = getLocationList();
+
+            if (locationList.length() >= 1) {
+                try {
+                    lastLocation = new LocationData(new JSONObject(locationList.get(locationList.length() - 1).toString()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         return lastLocation;
     }
 }
