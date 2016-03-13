@@ -18,9 +18,6 @@ import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.ViewFlipper;
-
-import java.security.Timestamp;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,8 +36,6 @@ public class MainActivity extends AppCompatActivity {
     private GridView gridview;
     private Switch activeSwitch;
     private PreferencesView preferencesView;
-    private ArrayList<Preferences.Item> preferenceItems;
-    private Preferences preferences;
 
     //Extend control service class, so we can use this class variables more easily
     public class ServiceControl extends ServiceControlClass {
@@ -55,27 +50,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void setLastLocation(LocationReceiver.LocationData locationData) {
-            ViewFlipper viewFlipper = (ViewFlipper) findViewById(("lastlocationflipper").hashCode());
-
-            try {
-                double lat = (double)locationData.getJSON().get("lat");
-                double lon = (double)locationData.getJSON().get("lon");
-
-                long tmpInteger = Math.round(lat * 1000);
-                float latF = tmpInteger / 1000;
-
-                tmpInteger = Math.round(lon * 1000);
-                float lonF = tmpInteger / 1000;
-
-                String newS = "Lat: " + Float.toString(latF) + "\n Lon: " + Float.toString(lonF);
-
-                CharSequence s = ((TextView) viewFlipper.getChildAt(0)).getText();
-                ((TextView) viewFlipper.getChildAt(0)).setText(newS);
-                ((TextView) viewFlipper.getChildAt(1)).setText(s);
-                viewFlipper.setDisplayedChild(0);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            Log.d(TAG, "New location.");
         }
     }
     private ServiceControl serviceControl;
@@ -186,11 +161,11 @@ public class MainActivity extends AppCompatActivity {
         switchTextOverlay = (TextView) findViewById(R.id.active_switcher_label_overlay);
         switchLayoutF = (FrameLayout) findViewById(R.id.active_switcher_text_overlay);
         activeSwitch = (Switch) findViewById(R.id.active_switch);
-        preferences = new Preferences(this, TAG);
+        Preferences preferences = new Preferences(this, TAG);
 
         //Initialize settings
         gridview = (GridView) findViewById(R.id.gridview);
-        preferenceItems = preferences.getItems();
+        ArrayList<Preferences.Item> preferenceItems = preferences.getItems();
         preferencesView = new PreferencesView(this, preferenceItems, TAG, animationInterpolator, fastAnimationSpeed);
         gridview.setAdapter(preferencesView);
 
