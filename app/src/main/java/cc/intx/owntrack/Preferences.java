@@ -39,16 +39,14 @@ public class Preferences {
 
         private int defaultValue;//The value to use if none is set and to show "recommended" under
         private ArrayList<String> possibleValues;//A list of all possible values
-        private boolean isCustomizable = false;//TODO True is the user should be able to save a custom value
 
         //The constructor sets all variables of this preference
-        public Item(String key, String dataType, ArrayList<String> possibleValues, int defaultValue, boolean isCustomizable, String descriptionTop,
+        public Item(String key, String dataType, ArrayList<String> possibleValues, int defaultValue, String descriptionTop,
                     String descriptionBottom, String valueSuffix, int backgroundColor, int textColor, int activeBackgroundColor, int activeTextColor) {
             this.key = key;
             this.dataType = dataType;
             this.possibleValues = possibleValues;
             this.defaultValue = defaultValue;
-            this.isCustomizable = isCustomizable;//TODO Implement custom settings
             this.descriptionTop = descriptionTop;
             this.descriptionBottom = descriptionBottom;
             this.valueSuffix = valueSuffix;
@@ -116,10 +114,6 @@ public class Preferences {
             return valueSuffix;
         }
 
-        public boolean getIsCustomizable() {
-            return isCustomizable;
-        }
-
         public int getDefaultValue() {
             return defaultValue;
         }
@@ -179,7 +173,7 @@ public class Preferences {
 
         possibleValues.add("Not active");
         possibleValues.add("Active");//default
-        newItem = new Item(currentKey, Boolean.TYPE.toString(), possibleValues, 1, false, "Enable autostart", "Service will restart after reboot", "",
+        newItem = new Item(currentKey, Boolean.TYPE.toString(), possibleValues, 1, "Enable autostart", "Service will restart after reboot", "",
                            getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);
@@ -195,7 +189,7 @@ public class Preferences {
         possibleValues.add("30");
         possibleValues.add("45");
         possibleValues.add("60");
-        newItem = new Item(currentKey, Integer.TYPE.toString(), possibleValues, 1, false, "Set interval", "Time between localisation attempts",
+        newItem = new Item(currentKey, Integer.TYPE.toString(), possibleValues, 1, "Set interval", "Time between localisation attempts",
                            " minutes",getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);

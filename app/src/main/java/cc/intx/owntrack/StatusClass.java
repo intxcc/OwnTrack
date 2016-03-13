@@ -50,15 +50,14 @@ public class StatusClass {
     LocationReceiver.LocationData lastLocation;
     private void loadLastLocation() {
         lastLocation = serviceControl.getLastLocation();
-        Log.d(TAG, "Load last location.");
-
         if (lastLocation != null) {
             try {
                 String topText = "LATITUDE " + String.valueOf(lastLocation.getJSON().getDouble("lat"));
-                String botText = "LONGITUDE " + String.valueOf(lastLocation.getJSON().getDouble("lat"));
+                String botText = "LONGITUDE " + String.valueOf(lastLocation.getJSON().getDouble("lon"));
 
                 lastLocationTopPreview.setText(topText);
                 lastLocationBotPreview.setText(botText);
+
 
                 long dateDiff = (new java.util.Date()).getTime() - (new java.util.Date(lastLocation.getJSON().getLong("time"))).getTime();
 
@@ -73,9 +72,29 @@ public class StatusClass {
                     footText = "LONG AGO";
                 }
 
-
                 lastLocationFootPreview.setText(footText);
 
+
+                TextView lastLocationAccuracyTextView = (TextView) activity.findViewById(R.id.lastLocationAccuracyTextView);
+                String accuracyString = "+/- " + String.valueOf(Math.round(lastLocation.getJSON().getDouble("accuracy") * 100) / 100) + " m";
+                lastLocationAccuracyTextView.setText(accuracyString);
+
+
+                TextView lastLocationSpeedTextView = (TextView) activity.findViewById(R.id.lastLocationSpeedTextView);
+                Float speed = Math.round(lastLocation.getJSON().getDouble("speed") * 100) / 100f;
+
+                if (speed > 0) {
+                    String speedString = String.valueOf(speed) + " m/s";
+                    lastLocationSpeedTextView.setText(speedString);
+                } else {
+                    lastLocationSpeedTextView.setText("Unknown");
+                }
+
+
+                TextView lastLocationProviderTextView = (TextView) activity.findViewById(R.id.lastLocationProviderTextView);
+                String providerString = lastLocation.getJSON().getString("provider");
+                providerString = providerString.substring(0,1).toUpperCase() + providerString.substring(1).toLowerCase();
+                lastLocationProviderTextView.setText(providerString);
             } catch (Exception e) {
                 e.printStackTrace();
             }
