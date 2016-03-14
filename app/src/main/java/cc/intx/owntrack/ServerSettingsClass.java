@@ -78,7 +78,7 @@ public class ServerSettingsClass {
 
                         int result = serviceControl.saveUrl(text);
 
-                        switch (result) {
+                        switch (result) {//TODO errormessages should not be that locally. For example we need the same errors while we send the locations in the background, we want to show these messages in a dedicated error log field.
                             case 0:
                                 serverUrlEdit.setText(text);
                                 break;

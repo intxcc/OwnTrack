@@ -45,7 +45,7 @@ public class TrackingService extends Service {
         TAG = getString(R.string.app_name); //Set debug string to app name
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
+        StrictMode.setThreadPolicy(policy);//TODO the urlstuff goes in a new thread, so the mainthread doesn't get stuck, instead of this workaround
 
         if (locationReceiver == null) {
             locationReceiver = new LocationReceiver(TAG, this);
