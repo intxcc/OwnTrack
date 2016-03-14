@@ -4,7 +4,7 @@
 ### What is OwnTrack?
 _OwnTrack is an android location tracking application_. The goal is to develop an application to be able to track all movements of you phone and access this information remotely. The idea is to get it back after it was stole or just for curiosity of ones movement paths, but you are free to use it for any usecase you can think of.
 
-__But there are thousands of applications like this!?__ 
+__But there are thousands of applications like this!?__
 
 No. There are thousand of tracking applications, which store your movements on a their own server and who knows what they do with your data. So this app tries to __give you back the control over your data__. There are two parts: The app itself, to install on your phone and the server part to host on your own server.
 
@@ -23,4 +23,5 @@ Currently OwnTrack supports only __Android 4.1 and above__ (API 16). _Windows Ph
 OwnTrack is currently __not working__. Please be patient until the development for the first version is finished. Thank you!
 
 ## Screenshots
-<img align="left" src="/screenshots/2016-03-05.png?raw=true" alt="Latest screenshot" />
+<img align="left" src="/screenshots/2016-03-14.png?raw=true" alt="Latest screenshot" />
+<img align="left" src="/screenshots/2016-03-05.png?raw=true" />
