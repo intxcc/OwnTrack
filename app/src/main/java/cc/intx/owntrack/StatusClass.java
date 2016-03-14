@@ -1,6 +1,5 @@
 package cc.intx.owntrack;
 
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.util.Log;
 import android.view.View;
@@ -107,9 +106,7 @@ public class StatusClass {
         }
     }
 
-    private ObjectAnimator objectWidthAnimator;
     private int targetLastLocationDetailsHeight = 0;
-    private int closedLastLocationDetailsWidth = 0;
     private boolean extended = false;
     public void onHeadClick() {
         if (targetLastLocationDetailsHeight == 0) {
@@ -118,19 +115,11 @@ public class StatusClass {
         }
 
         if (!extended) {
-            if (closedLastLocationDetailsWidth == 0 || !objectWidthAnimator.isRunning()) {
-                closedLastLocationDetailsWidth = statusGrid.getMeasuredWidth();
-            }
-
-            objectWidthAnimator = new ObjectAnimator();
-            objectWidthAnimator = ObjectAnimator.ofInt(statusGrid, "MinimumWidth", closedLastLocationDetailsWidth, activity.findViewById(R.id.layoutGrid_overlay).getMeasuredWidth());
-            objectWidthAnimator.setDuration(extendingSpeed);
-
             Animation animation = new ShowAnimation(lastLocationDetails, targetLastLocationDetailsHeight, false);
             animation.setDuration(Math.round(extendingSpeed * 0.75));
 
+            lastLocationDetails.clearAnimation();
             lastLocationDetails.startAnimation(animation);
-            objectWidthAnimator.start();
 
             lastLocationToSendTextView.animate().alpha(0.6f).setDuration(extendingSpeed);
             mapOverlay.animate().alpha(1f).setDuration(extendingSpeed);
@@ -140,8 +129,8 @@ public class StatusClass {
             Animation animation = new ShowAnimation(lastLocationDetails, targetLastLocationDetailsHeight, true);
             animation.setDuration(Math.round(extendingSpeed * 0.75));
 
+            lastLocationDetails.clearAnimation();
             lastLocationDetails.startAnimation(animation);
-            objectWidthAnimator.reverse();
 
             lastLocationToSendTextView.animate().alpha(0f).setDuration(extendingSpeed);
             mapOverlay.animate().alpha(0f).setDuration(extendingSpeed);

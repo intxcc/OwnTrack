@@ -189,8 +189,6 @@ public class MainActivity extends AppCompatActivity {
                  */
                 if ((right - left) != (oldRight - oldLeft)) {
                     switchOverlayRebuild();
-                    statusClass.onHeadClick();
-                    statusClass.onHeadClick();
                 }
             }
         });
