@@ -128,6 +128,14 @@ abstract class ServiceControlClass {
         }
     }
 
+    public int saveUrl(String url) {
+        if (trackingService != null) {
+            return trackingService.saveUrl(url);
+        } else {
+            return 1;
+        }
+    }
+
     /*
     Start the service and if we are not already bound or we lost connection
      */

@@ -6,8 +6,10 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.StrictMode;
 import android.os.SystemClock;
 import android.util.Log;
+import android.webkit.URLUtil;
 
 import java.util.ArrayList;
 
@@ -22,6 +24,7 @@ public class TrackingService extends Service {
     private ArrayList<String> preferenceItemsKeys;
     private Preferences.Item intervalPreference;
     private LocationReceiver locationReceiver;
+    private SendLocation sendLocation;
 
     //Indicates if the alarm manager is scheduled. If this is false the service will shutdown if the app is closed
     private boolean isRunning = false;
@@ -41,9 +44,17 @@ public class TrackingService extends Service {
     public void onCreate() {
         TAG = getString(R.string.app_name); //Set debug string to app name
 
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
         if (locationReceiver == null) {
             locationReceiver = new LocationReceiver(TAG, this);
             Log.d(TAG, "Created location receiver to get last location");
+        }
+
+        if (sendLocation == null) {
+            sendLocation = new SendLocation(TAG, this);
+            Log.d(TAG, "Created send Location to send locations to server");
         }
 
         Log.d(TAG, "Created service");
@@ -205,6 +216,22 @@ public class TrackingService extends Service {
             return locationReceiver.getListSize();
         } else {
             return 0;
+        }
+    }
+
+    public int saveUrl(String url) {
+        if (!URLUtil.isValidUrl(url)) {
+            return 2;
+        }
+
+        if (!URLUtil.isHttpsUrl(url)) {
+            return 3;
+        }
+
+        if (sendLocation != null) {
+            return sendLocation.pingNewServer(url);
+        } else {
+            return -1;
         }
     }
 

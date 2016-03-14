@@ -12,9 +12,9 @@ import android.widget.TextView;
 public class StatusClass {
     public String TAG;
 
+    private Activity activity;
     private MainActivity.ServiceControl serviceControl;
 
-    private Activity activity;
     private GridLayout statusGrid;
     private TextView lastLocationTopPreview;
     private TextView lastLocationBotPreview;
@@ -23,12 +23,13 @@ public class StatusClass {
     private FrameLayout mapOverlay;
     private LinearLayout lastLocationDetails;
 
-    private static final int extendingSpeed = 300;
+    private int extendingSpeed;
 
-    public StatusClass(Activity activity, String TAG, MainActivity.ServiceControl serviceControl) {
+    public StatusClass(Activity activity, String TAG, MainActivity.ServiceControl serviceControl, int extendingSpeed) {
         this.TAG = TAG;
         this.activity = activity;
         this.serviceControl = serviceControl;
+        this.extendingSpeed = extendingSpeed;
 
         statusGrid = (GridLayout) activity.findViewById(R.id.statusGrid);
         setOnClick();
