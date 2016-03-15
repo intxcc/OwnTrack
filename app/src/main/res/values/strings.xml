@@ -22,9 +22,12 @@
     <string name="cantsave_title">Could not save</string>
     <string name="cantsave">Could unexpectedly not save settings. Please try again.</string>
     <string name="unexpecederror_title">Unexpected error</string>
-    <string name="unexpecederror">These goddamn developers.</string>
+    <string name="unexpecederror">Sorry.</string>
     <string name="selfsignederr_title">Selfsigned is not enabled</string>
     <string name="selfsignederr">The certificate of the given host is not validated from a public CA. If you want to ignore this check the settings.</string>
+    <string name="wrongsettings_title">Wrong settings</string>
+    <string name="noowntrackerr">No OwnTrack installation was found.</string>
+    <string name="wrongcommonsecret">The common secret of the server and your device do not match.</string>
 
     <string name="unexpectedsrverror">Unexpected service error.</string>
 

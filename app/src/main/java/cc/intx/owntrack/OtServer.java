@@ -1,8 +1,16 @@
 package cc.intx.owntrack;
 
+import android.util.Log;
+
+import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
@@ -84,7 +92,6 @@ public class OtServer {
         if (httpsURLConnection == null) {
 
             error = -1;
-            return;
         }
     }
 
@@ -108,8 +115,100 @@ public class OtServer {
         }
     }
 
+    public JSONObject createAuthenticationBundle(String commonSecret, boolean isPing) {
+        String authenticationSalt = (new BigInteger(130, new SecureRandom())).toString(32);
+        String authenticationHashString = Misc.hash("SHA-256", (commonSecret + authenticationSalt).getBytes());
+
+        JSONObject request = new JSONObject();
+        try {
+            request.put("a", authenticationSalt);
+            request.put("b", authenticationHashString);
+            request.put("c", isPing);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return request;
+    }
+
+    public int checkSettings(String commonSecret) {
+        JSONObject requestBundle = new JSONObject();
+
+        JSONObject authenticationBundle = createAuthenticationBundle(commonSecret, true);
+        if (authenticationBundle == null) {
+            return -1;
+        }
+
+        try {
+            requestBundle.put("a", authenticationBundle);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        
+        String responseString = send(requestBundle);
+
+        int response;
+        try {
+            response = Integer.parseInt(responseString);
+        } catch (NumberFormatException e) {
+            response = 2;
+        }
+
+        return response;
+    }
+
+    private String send(JSONObject requestBundle) {
+        byte[] requestData = null;
+        int requestLength = 0;
+        try {
+            requestData = requestBundle.toString().getBytes();
+            requestLength = requestData.length;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+
+        try {
+            httpsURLConnection.setDoOutput(true);
+            httpsURLConnection.setInstanceFollowRedirects(false);
+            httpsURLConnection.setRequestMethod("POST");
+            httpsURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            httpsURLConnection.setRequestProperty("charset", "utf-8");
+            httpsURLConnection.setRequestProperty("Content-Length", Integer.toString(requestLength));
+            httpsURLConnection.setUseCaches(false);
+            DataOutputStream dataOutputStream = new DataOutputStream(httpsURLConnection.getOutputStream());
+
+            dataOutputStream.write(requestData);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+
+        StringBuilder response = new StringBuilder();
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(httpsURLConnection.getInputStream()));
+            String bufferString;
+            while ((bufferString = br.readLine()) != null) {
+                response.append(bufferString);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+
+        return response.toString();
+    }
+
     public Certificate[] getCerts() {
         checkConnection();
+
+        if (error != 0) {
+            return null;
+        }
+
         try {
             return httpsURLConnection.getServerCertificates();
         } catch (SSLPeerUnverifiedException e) {

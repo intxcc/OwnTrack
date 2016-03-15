@@ -81,8 +81,14 @@ public class ServerSettingsClass {
         targetLastLocationDetailsHeight = settingsInner.getMeasuredHeight();
 
         int result = serviceControl.checkServerSettings();
-        if (result != 0) {
-            throwErrorDialog(result);
+        if (result == 130 || result == 2 || result == 612) {
+            if (result == 612) {
+                throwErrorDialog(7);
+            } else if (result == 2) {
+                throwErrorDialog(8);
+            }
+        } else {
+            throwErrorDialog(-1);
         }
     }
 
@@ -119,13 +125,9 @@ public class ServerSettingsClass {
                     public void onClick(DialogInterface dialog, int which) {
                         String text = input.getText().toString();
 
-                        boolean isNewUrl = text.equals(serviceControl.getUrl());
                         int result = serviceControl.saveUrl(text);
 
                         if (result == 0) {
-                            if (isNewUrl) {
-                                serviceControl.pinCertificate("");
-                            }
                             loadSavedSettings();
                         } else {
                             throwErrorDialog(result);
@@ -313,6 +315,12 @@ public class ServerSettingsClass {
                 break;
             case 6:
                 showError(activity.getString(R.string.selfsignederr_title), activity.getString(R.string.selfsignederr));
+                break;
+            case 7:
+                showError(activity.getString(R.string.wrongsettings_title), activity.getString(R.string.wrongcommonsecret));
+                break;
+            case 8:
+                showError(activity.getString(R.string.wrongsettings_title), activity.getString(R.string.noowntrackerr));
                 break;
             default:
                 showError(activity.getString(R.string.unexpecederror_title), activity.getString(R.string.unexpecederror));

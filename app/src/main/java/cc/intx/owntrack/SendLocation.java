@@ -11,6 +11,7 @@ public class SendLocation {
     private Context context;
 
     private String standardUrl = "";
+    private String commonSecret = "";
     private boolean allowSelfsigned = false;
 
     private int lastError = 0;
@@ -24,7 +25,11 @@ public class SendLocation {
         return returnError;
     }
 
-    public void changeSelfSigned(boolean allowSelfsigned) {
+    public void changeCommonSecret(String commonSecret) {
+        this.commonSecret = commonSecret;
+    }
+
+    public void changeSelfsigned(boolean allowSelfsigned) {
         this.allowSelfsigned = allowSelfsigned;
     }
 
@@ -62,16 +67,10 @@ public class SendLocation {
             return ern;
         }
 
-        Certificate[] returnCerts = server.getCerts();
-        ern = server.getError();
-        if (ern != 0) {
-            server.disconnect();
-            return ern;
-        }
-
+        int result = server.checkSettings(commonSecret);
         server.disconnect();
 
-        return 0;
+        return result;
     }
 
     public Certificate[] getCerts(String sUrl) {

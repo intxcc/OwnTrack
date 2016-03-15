@@ -77,6 +77,7 @@ abstract class ServiceControlClass {
             if (lastLocationListener != null) {
                 lastLocationListener.run();
             }
+            trackingService.changedSettings();
             onBound();
 
             //Change connection state

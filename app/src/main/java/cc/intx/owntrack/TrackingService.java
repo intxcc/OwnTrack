@@ -115,10 +115,13 @@ public class TrackingService extends Service {
         }
 
         allowSelfSigned = preferences.getPreferenceObject().getInt("allowselfsigned", 0) == 1;
-        sendLocation.changeSelfSigned(allowSelfSigned);
+        sendLocation.changeSelfsigned(allowSelfSigned);
 
         //Load current url
         getUrl();
+
+        //Load common secret
+        getCommonSecret();
     }
 
     private void rewriteAlarm() {
@@ -290,7 +293,10 @@ public class TrackingService extends Service {
         createPreferences();
 
         SharedPreferences sharedPreferences = preferences.getPreferenceObject();
-        return sharedPreferences.getString("commonsecret", "nosecret");
+
+        String commonSecret = sharedPreferences.getString("commonsecret", "nosecret");
+        sendLocation.changeCommonSecret(commonSecret);
+        return commonSecret;
     }
 
     public int saveCommonSecret(String commonSecret) {
