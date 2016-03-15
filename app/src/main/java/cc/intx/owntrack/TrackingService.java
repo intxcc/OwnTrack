@@ -122,6 +122,9 @@ public class TrackingService extends Service {
 
         //Load common secret
         getCommonSecret();
+
+        //Load pinned certificate
+        getPinnedCert();
     }
 
     private void rewriteAlarm() {
@@ -272,7 +275,10 @@ public class TrackingService extends Service {
     public String getPinnedCert() {
         createPreferences();
 
-        return preferences.getPreferenceObject().getString("pinnedcert", "none");
+        String pinnedCertificate = preferences.getPreferenceObject().getString("pinnedcert", "none");
+        sendLocation.changePinnedCertificate(pinnedCertificate);
+
+        return pinnedCertificate;
     }
 
     public boolean getAllowSelfSigning() {

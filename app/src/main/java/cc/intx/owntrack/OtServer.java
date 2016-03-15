@@ -132,7 +132,7 @@ public class OtServer {
         return request;
     }
 
-    public int checkSettings(String commonSecret) {
+    public int checkSettings(String commonSecret, String pinnedCertificate) {
         JSONObject requestBundle = new JSONObject();
 
         JSONObject authenticationBundle = createAuthenticationBundle(commonSecret, true);
@@ -147,20 +147,36 @@ public class OtServer {
             return -1;
         }
 
-        
-        String responseString = send(requestBundle);
+
+        String responseString = send(requestBundle, pinnedCertificate);
+
+        if (responseString.equals("BADCERT")) {
+            return 9;
+        }
 
         int response;
         try {
             response = Integer.parseInt(responseString);
         } catch (NumberFormatException e) {
-            response = 2;
+            return 8;
         }
 
         return response;
     }
 
-    private String send(JSONObject requestBundle) {
+    private boolean checkCert(HttpsURLConnection connection, String correctCertificate) {
+        String certificate;
+        try {
+            certificate = Misc.getCertFingerprint(connection.getServerCertificates()[0]);
+        } catch (SSLPeerUnverifiedException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return (correctCertificate.equals(certificate) && !correctCertificate.equals("") && !certificate.equals(""));
+    }
+
+    private String send(JSONObject requestBundle, String pinnedCertificate) {
         byte[] requestData = null;
         int requestLength = 0;
         try {
@@ -180,6 +196,10 @@ public class OtServer {
             httpsURLConnection.setRequestProperty("Content-Length", Integer.toString(requestLength));
             httpsURLConnection.setUseCaches(false);
             DataOutputStream dataOutputStream = new DataOutputStream(httpsURLConnection.getOutputStream());
+
+            if (!checkCert(httpsURLConnection, pinnedCertificate) && !pinnedCertificate.equals("")) {
+                return "BADCERT";
+            }
 
             dataOutputStream.write(requestData);
         } catch (Exception e) {

@@ -28,9 +28,10 @@
     <string name="wrongsettings_title">Wrong settings</string>
     <string name="noowntrackerr">No OwnTrack installation was found.</string>
     <string name="wrongcommonsecret">The common secret of the server and your device do not match.</string>
+    <string name="badcert">The certificate of the remote server does not match. Either your configuration is bad or this is a MITM attack.</string>
 
     <string name="unexpectedsrverror">Unexpected service error.</string>
 
     <string name="usepubliccerts">Use public CAs</string>
-    <string name="useselfsignednopinned">WARNING! No cert pinned and selfsigning on. All certificates will be accepted.</string>
+    <string name="useselfsignednopinned">WARNING! Selfsigned does only work with a pinned certificate.</string>
 </resources>

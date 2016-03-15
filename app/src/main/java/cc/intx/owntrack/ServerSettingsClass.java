@@ -81,14 +81,10 @@ public class ServerSettingsClass {
         targetLastLocationDetailsHeight = settingsInner.getMeasuredHeight();
 
         int result = serviceControl.checkServerSettings();
-        if (result == 130 || result == 2 || result == 612) {
-            if (result == 612) {
-                throwErrorDialog(7);
-            } else if (result == 2) {
-                throwErrorDialog(8);
-            }
-        } else {
-            throwErrorDialog(-1);
+        if (result == 612) {
+            throwErrorDialog(7);
+        } else if (result != 130) {
+            throwErrorDialog(result);
         }
     }
 
@@ -321,6 +317,9 @@ public class ServerSettingsClass {
                 break;
             case 8:
                 showError(activity.getString(R.string.wrongsettings_title), activity.getString(R.string.noowntrackerr));
+                break;
+            case 9:
+                showError(activity.getString(R.string.wrongsettings_title), activity.getString(R.string.badcert));
                 break;
             default:
                 showError(activity.getString(R.string.unexpecederror_title), activity.getString(R.string.unexpecederror));
