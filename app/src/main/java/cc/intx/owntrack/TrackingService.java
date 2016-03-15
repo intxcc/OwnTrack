@@ -25,6 +25,7 @@ public class TrackingService extends Service {
     private ArrayList<Preferences.Item> preferenceItems;
     private ArrayList<String> preferenceItemsKeys;
     private Preferences.Item intervalPreference;
+    private Preferences.Item uploadIntervalPreference;
     private LocationReceiver locationReceiver;
     private SendLocation sendLocation;
 
@@ -52,14 +53,14 @@ public class TrackingService extends Service {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);//TODO the urlstuff goes in a new thread, so the mainthread doesn't get stuck, instead of this workaround
 
-        if (locationReceiver == null) {
-            locationReceiver = new LocationReceiver(TAG, this);
-            Log.d(TAG, "Created location receiver to get last location");
-        }
-
         if (sendLocation == null) {
             sendLocation = new SendLocation(TAG, this);
             Log.d(TAG, "Created send Location to send locations to server");
+        }
+
+        if (locationReceiver == null) {
+            locationReceiver = new LocationReceiver(TAG, this, sendLocation);
+            Log.d(TAG, "Created location receiver to get last location");
         }
 
         Log.d(TAG, "Created service");
@@ -95,6 +96,7 @@ public class TrackingService extends Service {
             preferenceItems = preferences.getItems();
 
             intervalPreference = preferenceItems.get(preferenceItemsKeys.indexOf("interval"));
+            uploadIntervalPreference = preferenceItems.get(preferenceItemsKeys.indexOf("uploadinterval"));
         }
     }
 
@@ -103,7 +105,6 @@ public class TrackingService extends Service {
         createPreferences();
 
         if (locationInterval != Integer.parseInt(intervalPreference.getPossibleValues().get(intervalPreference.getCurrentValue()))) {
-            locationInterval = Integer.parseInt(intervalPreference.getPossibleValues().get(intervalPreference.getCurrentValue()));
             locationInterval = Integer.parseInt(intervalPreference.getPossibleValues().get(intervalPreference.getCurrentValue()));
             changedInterval = true;
 
@@ -125,6 +126,8 @@ public class TrackingService extends Service {
 
         //Load pinned certificate
         getPinnedCert();
+
+        locationReceiver.changeUploadInterval(Integer.parseInt(uploadIntervalPreference.getPossibleValues().get(uploadIntervalPreference.getCurrentValue())));
     }
 
     private void rewriteAlarm() {
@@ -176,7 +179,7 @@ public class TrackingService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //Debugging stuff
-        Log.d(TAG, "We Run (" + isRunning + "). intent: " + (intent == null ? "null" : intent.toString()) + ", flags: " + flags + ", id: " + startId);
+        //Log.d(TAG, "We Run (" + isRunning + "). intent: " + (intent == null ? "null" : intent.toString()) + ", flags: " + flags + ", id: " + startId);
 
         changeIsRunning(true);//Change running state
         changedSettings();

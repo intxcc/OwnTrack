@@ -3,6 +3,8 @@ package cc.intx.owntrack;
 import android.content.Context;
 import android.util.Log;
 
+import org.json.JSONArray;
+
 import java.security.cert.Certificate;
 
 public class SendLocation {
@@ -98,5 +100,21 @@ public class SendLocation {
         server.disconnect();
 
         return returnCerts;
+    }
+
+    public int upload(JSONArray locationList) {
+        OtServer server = new OtServer(TAG, standardUrl, allowSelfsigned);
+        int ern = server.getError();
+        if (ern != 0) {
+            server.disconnect();
+            return ern;
+        }
+
+        lastError = 0;
+        int result = server.upload(commonSecret, pinnedCertificate, locationList);
+        lastError = server.getError();
+        server.disconnect();
+
+        return result;
     }
 }

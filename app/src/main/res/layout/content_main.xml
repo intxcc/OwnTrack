@@ -220,7 +220,7 @@
                 android:layout_column="1"
                 android:layout_gravity="fill"
                 android:layout_columnSpan="2"
-                android:text="No OwnTrack installation"
+                android:id="@+id/showCurrentServerStatus"
                 android:gravity="center_vertical|end" />
 
             <GridLayout
@@ -288,14 +288,14 @@
 
             </GridLayout>
 
-            <TextView
+            <!--<TextView
                 android:alpha="0.6"
                 android:layout_row="2"
                 android:layout_column="2"
                 android:layout_gravity="fill"
                 android:gravity="center_vertical|right"
                 android:textSize="12sp"
-                android:text="5 minutes ago" />
+                android:text="5 minutes ago" />-->
 
             <TextView
                 android:layout_row="0"
@@ -401,7 +401,7 @@
             <GridView xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/gridview"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="220dp"
                 android:paddingTop="10dp"
                 android:numColumns="3"
                 android:verticalSpacing="10dp"

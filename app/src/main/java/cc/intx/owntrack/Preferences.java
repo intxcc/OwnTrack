@@ -204,8 +204,24 @@ public class Preferences {
         possibleValues.add("30");
         possibleValues.add("45");
         possibleValues.add("60");
-        newItem = new Item(currentKey, Integer.TYPE.toString(), possibleValues, 1, "Set interval", "Time between localisation attempts",
+        newItem = new Item(currentKey, Integer.TYPE.toString(), possibleValues, 1, "Location interval", "Time between localisation attempts",
                            " minutes",getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
+        preferenceItems.add(newItem);
+        preferenceItemsKeys.add(currentKey);
+
+        //Upload interval setting
+        possibleValues = new ArrayList<>();
+        currentKey = "uploadinterval";
+
+        possibleValues.add("1");
+        possibleValues.add("2");
+        possibleValues.add("5");
+        possibleValues.add("10");
+        possibleValues.add("25");
+        possibleValues.add("50");
+        possibleValues.add("100");
+        newItem = new Item(currentKey, Integer.TYPE.toString(), possibleValues, 1, "Upload interval", "Time between upload attempts",
+                " locations",getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);
     }

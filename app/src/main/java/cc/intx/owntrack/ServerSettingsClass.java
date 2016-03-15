@@ -25,6 +25,7 @@ public class ServerSettingsClass {
     private TextView settingsHead2;
 
     private TextView showCurrentServerTextView;
+    private TextView showCurrentServerStatus;
 
     private TextView serverUrlEdit;
     private TextView serverCommonSecretEdit;
@@ -43,6 +44,7 @@ public class ServerSettingsClass {
         settingsHead2 = (TextView) activity.findViewById(R.id.serverSettingsHead2);
 
         showCurrentServerTextView = (TextView) activity.findViewById(R.id.showCurrentServerTextView);
+        showCurrentServerStatus = (TextView) activity.findViewById(R.id.showCurrentServerStatus);
 
         serverUrlEdit = (TextView) activity.findViewById(R.id.serverUrlEdit);
         serverCommonSecretEdit = (TextView) activity.findViewById(R.id.serverCommonSecretEdit);
@@ -80,12 +82,22 @@ public class ServerSettingsClass {
         settingsInner.measure(View.MeasureSpec.makeMeasureSpec(settingsInner.getWidth(), View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.AT_MOST));
         targetLastLocationDetailsHeight = settingsInner.getMeasuredHeight();
 
+        String serverStatusString = "";
         int result = serviceControl.checkServerSettings();
         if (result == 612) {
             throwErrorDialog(7);
+
+            serverStatusString = "Error " + result;
         } else if (result != 130) {
             throwErrorDialog(result);
+
+            serverStatusString = "Error " + result;
+        } else {
+
+            serverStatusString = "Working";
         }
+
+        showCurrentServerStatus.setText(serverStatusString);
     }
 
     private void setOnClick() {

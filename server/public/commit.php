@@ -3,7 +3,7 @@
 
     /* Paste your own common secret here. It should a random string of more then 20
     characters. The EXACT same string needs to be configured in the OwnTrack app. */
-    $commonSecret = "test156";
+    $commonSecret = "";
 
     $hostServer = "localhost";
     $databaseUser = "owntrack";

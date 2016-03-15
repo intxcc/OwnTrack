@@ -2,6 +2,7 @@ package cc.intx.owntrack;
 
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
@@ -176,9 +177,49 @@ public class OtServer {
         return (correctCertificate.equals(certificate) && !correctCertificate.equals("") && !certificate.equals(""));
     }
 
+    public int upload(String commonSecret, String pinnedCertificate, JSONArray locationList) {
+        JSONObject requestBundle = new JSONObject();
+
+        error = 0;
+
+        JSONObject authenticationBundle = createAuthenticationBundle(commonSecret, false);
+        if (authenticationBundle == null) {
+            error = -1;
+        }
+
+        try {
+            requestBundle.put("a", authenticationBundle);
+        } catch (Exception e) {
+            e.printStackTrace();
+            error = -1;
+        }
+
+        try {
+            requestBundle.put("b", locationList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            error = -1;
+        }
+
+        String responseString = send(requestBundle, pinnedCertificate);
+
+        if (responseString.equals("BADCERT")) {
+            error = 9;
+        }
+
+        int response = 0;
+        try {
+            response = Integer.parseInt(responseString);
+        } catch (NumberFormatException e) {
+            error = 8;
+        }
+
+        return response;
+    }
+
     private String send(JSONObject requestBundle, String pinnedCertificate) {
-        byte[] requestData = null;
-        int requestLength = 0;
+        byte[] requestData;
+        int requestLength;
         try {
             requestData = requestBundle.toString().getBytes();
             requestLength = requestData.length;

@@ -26,6 +26,7 @@ public class LocationReceiver {
     private Context context;
     private LocationManager locationManager;
     private TrackingLocationListener locationListener;
+    private SendLocation sendLocation;
 
     private boolean isGpsEnabled = false;
     private boolean isNetworkEnabled = false;
@@ -97,6 +98,8 @@ public class LocationReceiver {
 
     private Runnable newLocationListener;
     public void getLocation(Runnable newLocationListener) {
+        upload(getLocationList());
+
         this.newLocationListener = newLocationListener;
         getPermissions();
 
@@ -172,11 +175,39 @@ public class LocationReceiver {
         return locationList;
     }
 
+    private int uploadInterval = 0;
+    public void changeUploadInterval(int newInterval) {
+        uploadInterval = newInterval;
+    }
+
+    private void upload(JSONArray locationList) {
+        if (locationList != null && locationList.length() >= uploadInterval) {
+            int result = sendLocation.upload(locationList);
+
+            if (result == locationList.length() && sendLocation.getLastError() == 0) {
+                clearAllLocations();
+            }
+        }
+    }
+
+    private void clearAllLocations() {
+        locationList = new JSONArray();
+        try {
+            FileOutputStream fileOutputStream = context.openFileOutput(LOCATION_LIST_FILENAME, Context.MODE_PRIVATE);
+            fileOutputStream.write(locationList.toString().getBytes());
+            fileOutputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void saveLocation(Location location) {
         locationList = getLocationList();
 
         LocationData locationData = new LocationData(location);
         locationList.put(locationData.getJSON());
+
+        upload(locationList);
 
         this.lastLocation = locationData;
 
@@ -207,10 +238,12 @@ public class LocationReceiver {
         }
     }
 
-    public LocationReceiver(String TAG, Context context) {
+    public LocationReceiver(String TAG, Context context, SendLocation sendLocation) {
         this.TAG = TAG;
 
         this.context = context;
+        this.sendLocation = sendLocation;
+
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         locationListener = new TrackingLocationListener();
 
