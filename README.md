@@ -22,6 +22,13 @@ Currently OwnTrack supports only __Android 4.1 and above__ (API 16). _Windows Ph
 ### What is the current development state?
 OwnTrack is currently __not working__. Please be patient until the development for the first version is finished. Thank you!
 
+### Features
+- Autostart
+- Last location list preserved if unavailable internet connection
+- Completely independend server, setup by yourself without second party control
+- Https only
+- Certificate pinning
+
 ## Latest Screenshots
 <img align="left" src="/screenshots/2016-03-15_00.png?raw=true" width="30%" alt="Latest screenshots" />
 <img align="left" src="/screenshots/2016-03-15_01.png?raw=true" width="30%" />
