@@ -3,7 +3,6 @@ package cc.intx.owntrack;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
@@ -11,6 +10,9 @@ import android.view.animation.Animation;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.TextView;
+
+import java.net.URL;
+import java.security.cert.Certificate;
 
 public class ServerSettingsClass {
     public String TAG;
@@ -22,8 +24,11 @@ public class ServerSettingsClass {
     private TextView settingsHead1;
     private TextView settingsHead2;
 
+    private TextView showCurrentServerTextView;
+
     private TextView serverUrlEdit;
     private TextView serverCommonSecretEdit;
+    private TextView serverCertEdit;
 
     private int extendingSpeed;
 
@@ -37,21 +42,45 @@ public class ServerSettingsClass {
         settingsHead1 = (TextView) activity.findViewById(R.id.serverSettingsHead1);
         settingsHead2 = (TextView) activity.findViewById(R.id.serverSettingsHead2);
 
+        showCurrentServerTextView = (TextView) activity.findViewById(R.id.showCurrentServerTextView);
+
         serverUrlEdit = (TextView) activity.findViewById(R.id.serverUrlEdit);
         serverCommonSecretEdit = (TextView) activity.findViewById(R.id.serverCommonSecretEdit);
+        serverCertEdit = (TextView) activity.findViewById(R.id.serverCertEdit);
 
         setOnClick();
     }
 
-    private void loadSavedSettings() {
+    public void loadSavedSettings() {
         serverUrlEdit.setText(serviceControl.getUrl());
         serverCommonSecretEdit.setText(serviceControl.getCommonSecret());
+
+        URL url;
+        try {
+            url = new URL(serviceControl.getUrl());
+        } catch (Exception e) {
+            showError("Error", e.getMessage());
+            return;
+        }
+        showCurrentServerTextView.setText(url.getHost());
+
+        String pinnedCert = serviceControl.getPinnedCert();
+        if (pinnedCert.equals("none")) {
+            if (serviceControl.getAllowSelfSigning()) {
+                serverCertEdit.setText(activity.getString(R.string.useselfsignednopinned));
+            } else {
+                serverCertEdit.setText(activity.getString(R.string.usepubliccerts));
+            }
+        } else {
+            String showText = pinnedCert.subSequence(0, 16) + "...";
+            serverCertEdit.setText(showText);
+        }
 
         //Update height in case some TextView does break a line
         settingsInner.measure(View.MeasureSpec.makeMeasureSpec(settingsInner.getWidth(), View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.AT_MOST));
         targetLastLocationDetailsHeight = settingsInner.getMeasuredHeight();
 
-        int result = serviceControl.checkConnection();
+        int result = serviceControl.checkServerSettings();
         if (result != 0) {
             throwErrorDialog(result);
         }
@@ -71,7 +100,6 @@ public class ServerSettingsClass {
             }
         });
 
-        //Server URL Edit
         serverUrlEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,9 +119,13 @@ public class ServerSettingsClass {
                     public void onClick(DialogInterface dialog, int which) {
                         String text = input.getText().toString();
 
+                        boolean isNewUrl = text.equals(serviceControl.getUrl());
                         int result = serviceControl.saveUrl(text);
 
                         if (result == 0) {
+                            if (isNewUrl) {
+                                serviceControl.pinCertificate("");
+                            }
                             loadSavedSettings();
                         } else {
                             throwErrorDialog(result);
@@ -112,7 +144,6 @@ public class ServerSettingsClass {
             }
         });
 
-        //Server Common Secret Edit
         serverCommonSecretEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -155,6 +186,112 @@ public class ServerSettingsClass {
                 builder.show();
             }
         });
+
+        serverCertEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                builder.setTitle("Change pinned certificate?");
+
+                URL url;
+                try {
+                    url = new URL(serviceControl.getUrl());
+                } catch (Exception e) {
+                    showError("Error", e.getMessage());
+                    return;
+                }
+
+                String message = "Would you like to change the pinned certificate for " + url.getHost() + "?";
+                String pinnedCert = serviceControl.getPinnedCert();
+                if (!pinnedCert.equals("none")) {
+                    TextView textView = new TextView(activity);
+                    textView.setText(pinnedCert);
+
+                    int padding = Math.round((settingsInner.getMeasuredWidth() / 100f) * 15f);
+
+                    textView.setPadding(padding, 10, padding, 10);
+                    builder.setView(textView);
+
+
+                    message = message + " Current certificate [SHA-256]: ";
+                }
+
+                builder.setMessage(message);
+                builder.setIcon(android.R.drawable.ic_partial_secure);
+
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        pinCertificateDialog();
+                        loadSavedSettings();
+                    }
+                });
+
+                builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        serviceControl.pinCertificate("");
+                        loadSavedSettings();
+                    }
+                });
+
+                builder.show();
+            }
+        });
+    }
+
+    private void pinCertificateDialog() {
+        Certificate[] certificates = serviceControl.getCerts();
+        if (certificates == null) {
+            throwErrorDialog(serviceControl.getLastError());
+            return;
+        }
+
+        final String newCert = Misc.getCertFingerprint(certificates[0]);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Pin this certificate?");
+
+        URL url;
+        try {
+            url = new URL(serviceControl.getUrl());
+        } catch (Exception e) {
+            showError("Error", e.getMessage());
+            return;
+        }
+
+        TextView textView = new TextView(activity);
+        textView.setText(newCert);
+        int padding = Math.round((settingsInner.getMeasuredWidth() / 100f) * 15f);
+        textView.setPadding(padding, 10, padding, 10);
+        builder.setView(textView);
+
+        builder.setMessage("New certificate for " + url.getHost() + " [SHA-256]:");
+        builder.setIcon(android.R.drawable.ic_partial_secure);
+
+        builder.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                serviceControl.pinCertificate(newCert);
+                loadSavedSettings();
+            }
+        });
+
+        builder.setNegativeButton("Reject", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 
     private void throwErrorDialog(int errorCode) {
@@ -173,6 +310,9 @@ public class ServerSettingsClass {
                 break;
             case 5:
                 showError(activity.getString(R.string.cantsave_title), activity.getString(R.string.cantsave));
+                break;
+            case 6:
+                showError(activity.getString(R.string.selfsignederr_title), activity.getString(R.string.selfsignederr));
                 break;
             default:
                 showError(activity.getString(R.string.unexpecederror_title), activity.getString(R.string.unexpecederror));
@@ -198,8 +338,6 @@ public class ServerSettingsClass {
         }
 
         if (!extended) {
-            loadSavedSettings();
-
             Animation animation = new ShowAnimation(settingsInner, targetLastLocationDetailsHeight, false);
             animation.setDuration(Math.round(extendingSpeed * 0.75));
 

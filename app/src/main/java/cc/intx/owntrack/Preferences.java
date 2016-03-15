@@ -182,6 +182,17 @@ public class Preferences {
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);
 
+        //Selfsigned setting
+        possibleValues = new ArrayList<>();
+        currentKey = "allowselfsigned";
+
+        possibleValues.add("Don't allow");//default
+        possibleValues.add("Allow");
+        newItem = new Item(currentKey, Boolean.TYPE.toString(), possibleValues, 0, "Allow self signing", "Certificate is allowed to be self signed", "",
+                getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
+        preferenceItems.add(newItem);
+        preferenceItemsKeys.add(currentKey);
+
         //Location retrieve interval setting
         possibleValues = new ArrayList<>();
         currentKey = "interval";

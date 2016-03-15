@@ -12,6 +12,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.webkit.URLUtil;
 
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 
 public class TrackingService extends Service {
@@ -26,6 +27,9 @@ public class TrackingService extends Service {
     private Preferences.Item intervalPreference;
     private LocationReceiver locationReceiver;
     private SendLocation sendLocation;
+
+    //Current settings
+    private String serverUrl;
 
     //Indicates if the alarm manager is scheduled. If this is false the service will shutdown if the app is closed
     private boolean isRunning = false;
@@ -83,28 +87,38 @@ public class TrackingService extends Service {
         return false;//Do not call rebind on rebind, but bind
     }
 
-    public void changedSettings() {
+    private void createPreferences() {
         if (preferences == null) {
             preferences = new Preferences(this, TAG);
+
             preferenceItemsKeys = preferences.getKeys();
             preferenceItems = preferences.getItems();
 
             intervalPreference = preferenceItems.get(preferenceItemsKeys.indexOf("interval"));
+        }
+    }
 
+    private boolean allowSelfSigned = false;
+    public void changedSettings() {
+        createPreferences();
+
+        if (locationInterval != Integer.parseInt(intervalPreference.getPossibleValues().get(intervalPreference.getCurrentValue()))) {
+            locationInterval = Integer.parseInt(intervalPreference.getPossibleValues().get(intervalPreference.getCurrentValue()));
             locationInterval = Integer.parseInt(intervalPreference.getPossibleValues().get(intervalPreference.getCurrentValue()));
             changedInterval = true;
-        } else {
-            if (locationInterval != Integer.parseInt(intervalPreference.getPossibleValues().get(intervalPreference.getCurrentValue()))) {
-                locationInterval = Integer.parseInt(intervalPreference.getPossibleValues().get(intervalPreference.getCurrentValue()));
-                changedInterval = true;
 
-                Log.d(TAG, "Changed interval");
-            }
+            Log.d(TAG, "Changed interval");
         }
 
         if (changedInterval) {
             rewriteAlarm();
         }
+
+        allowSelfSigned = preferences.getPreferenceObject().getInt("allowselfsigned", 0) == 1;
+        sendLocation.changeSelfSigned(allowSelfSigned);
+
+        //Load current url
+        getUrl();
     }
 
     private void rewriteAlarm() {
@@ -221,7 +235,60 @@ public class TrackingService extends Service {
     }
 
 
+    private int lastError = 0;
+    public int getLastError() {
+        int returnError = lastError;
+
+        //Reset error
+        lastError = 0;
+
+        return returnError;
+    }
+
+    public int checkServerSettings() {
+        return sendLocation.checkServerSettings();
+    }
+
+    public int pinCertificate(String fingerprint) {
+        SharedPreferences sharedPreferences = preferences.getPreferenceObject();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        if (fingerprint.equals("")) {
+            editor.remove("pinnedcert");
+        } else {
+            editor.putString("pinnedcert", fingerprint);
+        }
+
+        if (!editor.commit()) {
+            return 5;
+        } else {
+            return 0;
+        }
+    }
+
+    public String getPinnedCert() {
+        createPreferences();
+
+        return preferences.getPreferenceObject().getString("pinnedcert", "none");
+    }
+
+    public boolean getAllowSelfSigning() {
+        return allowSelfSigned;
+    }
+
+    public Certificate[] getCerts() {
+        Certificate[] certificates = sendLocation.getCerts(serverUrl);
+
+        if (certificates == null) {
+            lastError = sendLocation.getLastError();
+        }
+
+        return certificates;
+    }
+
     public String getCommonSecret() {
+        createPreferences();
+
         SharedPreferences sharedPreferences = preferences.getPreferenceObject();
         return sharedPreferences.getString("commonsecret", "nosecret");
     }
@@ -239,8 +306,14 @@ public class TrackingService extends Service {
     }
 
     public String getUrl() {
+        createPreferences();
+
         SharedPreferences sharedPreferences = preferences.getPreferenceObject();
-        return sharedPreferences.getString("url", this.getString(R.string.exampleurl));
+        serverUrl = sharedPreferences.getString("url", this.getString(R.string.exampleurl));
+
+        sendLocation.changeUrl(serverUrl);
+
+        return serverUrl;
     }
 
     public int saveUrl(String url) {
@@ -263,6 +336,8 @@ public class TrackingService extends Service {
                 if (!editor.commit()) {
                     return 5;
                 }
+
+                changedSettings();
             }
 
             return result;

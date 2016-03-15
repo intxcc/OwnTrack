@@ -11,16 +11,23 @@
 
     <string name="exampleurl">https://exp.tld/commit.php</string>
 
-    <string name="noconnection_title">Can't connect</string>
+    <string name="noconnection_title">Can not connect</string>
     <string name="noconnection">No connection possible.</string>
-    <string name="norespond_title">Service doesn't respond</string>
+    <string name="norespond_title">Service does not respond</string>
     <string name="norespond">The service is currently not bound. Please restart the app and/or service and try again.</string>
     <string name="invalidurl_title">Invalid URL</string>
     <string name="invalidurl">The URL you entered is not in a valid format. Please use a format like "https://example.tld/optpath/optfile.php".</string>
     <string name="nohttps_title">No HTTPS</string>
     <string name="nohttps">Only https is supported. Yes, self signed as well, look in the settings.</string>
-    <string name="cantsave_title">Couldn't save</string>
+    <string name="cantsave_title">Could not save</string>
     <string name="cantsave">Could unexpectedly not save settings. Please try again.</string>
     <string name="unexpecederror_title">Unexpected error</string>
     <string name="unexpecederror">These goddamn developers.</string>
+    <string name="selfsignederr_title">Selfsigned is not enabled</string>
+    <string name="selfsignederr">The certificate of the given host is not validated from a public CA. If you want to ignore this check the settings.</string>
+
+    <string name="unexpectedsrverror">Unexpected service error.</string>
+
+    <string name="usepubliccerts">Use public CAs</string>
+    <string name="useselfsignednopinned">WARNING! No cert pinned and selfsigning on. All certificates will be accepted.</string>
 </resources>

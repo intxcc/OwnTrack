@@ -7,6 +7,8 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.security.cert.Certificate;
+
 abstract class ServiceControlClass {
     //Debug tag
     private String TAG;
@@ -22,6 +24,8 @@ abstract class ServiceControlClass {
 
     //This is implemented by the main activity, so we can visualize changed service states
     public abstract void onChangeStatus();
+    public abstract void onBound();
+
     /*
     This runnable is passed to the service on bind, so the service can pass status changes to the
     service control. The runnable will also always get called on onbind, to get the current state
@@ -73,6 +77,7 @@ abstract class ServiceControlClass {
             if (lastLocationListener != null) {
                 lastLocationListener.run();
             }
+            onBound();
 
             //Change connection state
             isBound = true;
@@ -129,11 +134,59 @@ abstract class ServiceControlClass {
     }
 
 
+    public int getLastError() {
+        if (trackingService != null) {
+            return trackingService.getLastError();
+        } else {
+            return -1;
+        }
+    }
+
+    public int checkServerSettings() {
+        if (trackingService != null) {
+            return trackingService.checkServerSettings();
+        } else {
+            return -1;
+        }
+    }
+
+    public boolean getAllowSelfSigning() {
+        if (trackingService != null) {
+            return trackingService.getAllowSelfSigning();
+        } else {
+            return false;
+        }
+    }
+
+    public String getPinnedCert() {
+        if (trackingService != null) {
+            return trackingService.getPinnedCert();
+        } else {
+            return "";
+        }
+    }
+
+    public int pinCertificate(String fingerprint) {
+        if (trackingService != null) {
+            return trackingService.pinCertificate(fingerprint);
+        } else {
+            return -1;
+        }
+    }
+
+    public Certificate[] getCerts() {
+        if (trackingService != null) {
+            return trackingService.getCerts();
+        } else {
+            return null;
+        }
+    }
+
     public String getCommonSecret() {
         if (trackingService != null) {
             return trackingService.getCommonSecret();
         } else {
-            return "Unexpected service error.";
+            return context.getString(R.string.unexpectedsrverror);
         }
     }
 
@@ -149,7 +202,7 @@ abstract class ServiceControlClass {
         if (trackingService != null) {
             return trackingService.getUrl();
         } else {
-            return "Unexpected service error.";
+            return context.getString(R.string.unexpectedsrverror);
         }
     }
 

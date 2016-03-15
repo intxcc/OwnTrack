@@ -40,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
     private Switch activeSwitch;
     private PreferencesView preferencesView;
 
+    ServerSettingsClass serverSettingsClass;
+
     //Extend control service class, so we can use this class variables more easily
     public class ServiceControl extends ServiceControlClass {
         public ServiceControl(Context context) {
@@ -50,6 +52,10 @@ public class MainActivity extends AppCompatActivity {
         public void onChangeStatus() {
             //Implement onstatuschange action
             onServiceStatusChange();
+        }
+
+        public void onBound() {
+            serverSettingsClass.loadSavedSettings();
         }
     }
     private ServiceControl serviceControl;
@@ -130,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Create Views for Status and Server Settings
         new StatusClass(this, TAG, serviceControl, Math.round(animationSpeed/2));
-        new ServerSettingsClass(this, TAG, serviceControl, Math.round(animationSpeed/2));
+        serverSettingsClass = new ServerSettingsClass(this, TAG, serviceControl, Math.round(animationSpeed/2));
     }
 
     @Override
