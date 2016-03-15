@@ -20,7 +20,7 @@ __Your location data does never leave your control. You don't have to trust any 
 Currently OwnTrack supports only __Android 4.1 and above__ (API 16). _Windows Phone and iOS are not supported_. This is due to the fact, that they don't really allow the user to control the OS, like custom roms without gApps do. Therefore a privacy application for these platforms would be rather useless.
 
 ### What is the current development state?
-OwnTrack is currently __not working__. Please be patient until the development for the first version is finished. Thank you!
+OwnTrack is currently __working__. This is no software to be used in production, which will take a few or maybe just one release. Be patient. Thank you!
 
 ### Features
 - Autostart
