@@ -39,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
     private GridView gridview;
     private Switch activeSwitch;
     private PreferencesView preferencesView;
-    private StatusClass statusClass;
-    private ServerSettingsClass serverSettingsClass;
 
     //Extend control service class, so we can use this class variables more easily
     public class ServiceControl extends ServiceControlClass {
@@ -130,8 +128,9 @@ public class MainActivity extends AppCompatActivity {
             window.setStatusBarColor(this.getResources().getColor(R.color.colorPrimaryDark, null));
         }
 
-        statusClass = new StatusClass(this, TAG, serviceControl, Math.round(animationSpeed/2));
-        serverSettingsClass = new ServerSettingsClass(this, TAG, serviceControl, Math.round(animationSpeed/2));
+        //Create Views for Status and Server Settings
+        new StatusClass(this, TAG, serviceControl, Math.round(animationSpeed/2));
+        new ServerSettingsClass(this, TAG, serviceControl, Math.round(animationSpeed/2));
     }
 
     @Override

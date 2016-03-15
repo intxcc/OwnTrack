@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.StrictMode;
@@ -219,6 +220,29 @@ public class TrackingService extends Service {
         }
     }
 
+
+    public String getCommonSecret() {
+        SharedPreferences sharedPreferences = preferences.getPreferenceObject();
+        return sharedPreferences.getString("commonsecret", "nosecret");
+    }
+
+    public int saveCommonSecret(String commonSecret) {
+        SharedPreferences sharedPreferences = preferences.getPreferenceObject();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("commonsecret", commonSecret);
+
+        if (!editor.commit()) {
+            return 5;
+        } else {
+            return 0;
+        }
+    }
+
+    public String getUrl() {
+        SharedPreferences sharedPreferences = preferences.getPreferenceObject();
+        return sharedPreferences.getString("url", this.getString(R.string.exampleurl));
+    }
+
     public int saveUrl(String url) {
         if (!URLUtil.isValidUrl(url)) {
             return 2;
@@ -229,11 +253,24 @@ public class TrackingService extends Service {
         }
 
         if (sendLocation != null) {
-            return sendLocation.pingNewServer(url);
+            int result = sendLocation.pingNewServer(url);
+
+            if (result == 0) {
+                SharedPreferences sharedPreferences = preferences.getPreferenceObject();
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("url", url);
+
+                if (!editor.commit()) {
+                    return 5;
+                }
+            }
+
+            return result;
         } else {
             return -1;
         }
     }
+
 
     //Public interface for checking status
     public boolean getIsRunning() {

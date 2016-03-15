@@ -23,6 +23,10 @@ public class Preferences {
     private ArrayList<Item> preferenceItems;
     private ArrayList<String> preferenceItemsKeys;
 
+    public SharedPreferences getPreferenceObject() {
+        return preferenceData;
+    }
+
     public class Item {
         private String key;//The key for identifying single preferences
         private int currentValue;//Contains always the current value

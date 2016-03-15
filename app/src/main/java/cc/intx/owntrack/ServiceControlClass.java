@@ -128,6 +128,31 @@ abstract class ServiceControlClass {
         }
     }
 
+
+    public String getCommonSecret() {
+        if (trackingService != null) {
+            return trackingService.getCommonSecret();
+        } else {
+            return "Unexpected service error.";
+        }
+    }
+
+    public int saveCommonSecret(String commonSecret) {
+        if (trackingService != null) {
+            return trackingService.saveCommonSecret(commonSecret);
+        } else {
+            return 1;
+        }
+    }
+
+    public String getUrl() {
+        if (trackingService != null) {
+            return trackingService.getUrl();
+        } else {
+            return "Unexpected service error.";
+        }
+    }
+
     public int saveUrl(String url) {
         if (trackingService != null) {
             return trackingService.saveUrl(url);
@@ -135,6 +160,7 @@ abstract class ServiceControlClass {
             return 1;
         }
     }
+
 
     /*
     Start the service and if we are not already bound or we lost connection

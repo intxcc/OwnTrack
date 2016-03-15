@@ -58,11 +58,7 @@ db = MySQLdb.connect(host = "",    # your host, usually localhost
                      passwd = "",  # your password
                      db = "")        # name of the data base
 
-# you must create a Cursor object. It will let
-#  you execute all the queries you need
 cur = db.cursor()
-
-# Use all the SQL you like
 if (usedate):
         query = "SELECT * FROM `location_history` WHERE "\
                 "`timestamp` BETWEEN '%s' AND '%s'" % (date_from, date_to);
@@ -71,7 +67,6 @@ else:
 
 cur.execute(query)
 
-# print all the first cell of all the rows
 result = cur.fetchall()
 
 #download map

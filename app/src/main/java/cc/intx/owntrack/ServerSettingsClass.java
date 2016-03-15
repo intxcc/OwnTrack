@@ -3,6 +3,7 @@ package cc.intx.owntrack;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
@@ -22,6 +23,7 @@ public class ServerSettingsClass {
     private TextView settingsHead2;
 
     private TextView serverUrlEdit;
+    private TextView serverCommonSecretEdit;
 
     private int extendingSpeed;
 
@@ -36,8 +38,23 @@ public class ServerSettingsClass {
         settingsHead2 = (TextView) activity.findViewById(R.id.serverSettingsHead2);
 
         serverUrlEdit = (TextView) activity.findViewById(R.id.serverUrlEdit);
+        serverCommonSecretEdit = (TextView) activity.findViewById(R.id.serverCommonSecretEdit);
 
         setOnClick();
+    }
+
+    private void loadSavedSettings() {
+        serverUrlEdit.setText(serviceControl.getUrl());
+        serverCommonSecretEdit.setText(serviceControl.getCommonSecret());
+
+        //Update height in case some TextView does break a line
+        settingsInner.measure(View.MeasureSpec.makeMeasureSpec(settingsInner.getWidth(), View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.AT_MOST));
+        targetLastLocationDetailsHeight = settingsInner.getMeasuredHeight();
+
+        int result = serviceControl.checkConnection();
+        if (result != 0) {
+            throwErrorDialog(result);
+        }
     }
 
     private void setOnClick() {
@@ -54,6 +71,7 @@ public class ServerSettingsClass {
             }
         });
 
+        //Server URL Edit
         serverUrlEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,30 +91,12 @@ public class ServerSettingsClass {
                     public void onClick(DialogInterface dialog, int which) {
                         String text = input.getText().toString();
 
-                        settingsInner.measure(View.MeasureSpec.makeMeasureSpec(settingsInner.getWidth(), View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.AT_MOST));
-                        targetLastLocationDetailsHeight = settingsInner.getMeasuredHeight();
-
                         int result = serviceControl.saveUrl(text);
 
-                        switch (result) {//TODO errormessages should not be that locally. For example we need the same errors while we send the locations in the background, we want to show these messages in a dedicated error log field.
-                            case 0:
-                                serverUrlEdit.setText(text);
-                                break;
-                            case 1:
-                                showError("Service doesn't respond", "The service is currently not bound. Please restart the app and/or service and try again.");
-                                break;
-                            case 2:
-                                showError("Invalid URL", "The URL you entered is not in a valid format. Please use a format like \"https://example.tld/optpath/optfile.php\".");
-                                break;
-                            case 3:
-                                showError("Use HTTPS", "Only https is supported. Yes, self signed as well, look in the settings.");
-                                break;
-                            case 4:
-                                showError("Can't connect", "No connection possible.");
-                                break;
-                            default:
-                                showError("Unexpected error", "These goddamn developers.");
-                                break;
+                        if (result == 0) {
+                            loadSavedSettings();
+                        } else {
+                            throwErrorDialog(result);
                         }
                     }
                 });
@@ -111,6 +111,73 @@ public class ServerSettingsClass {
                 builder.show();
             }
         });
+
+        //Server Common Secret Edit
+        serverCommonSecretEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextView f = (TextView) v;
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                builder.setTitle("Edit common secret");
+
+                final EditText input = new EditText(activity);
+                input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                input.setText(f.getText());
+                input.selectAll();
+                builder.setView(input);
+
+                builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String text = input.getText().toString();
+
+                        if (text.equals("")) {
+                            text = "nosecret";
+                        }
+                        int result = serviceControl.saveCommonSecret(text);
+
+                        if (result == 0) {
+                            loadSavedSettings();
+                        } else {
+                            throwErrorDialog(result);
+                        }
+                    }
+                });
+
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+            }
+        });
+    }
+
+    private void throwErrorDialog(int errorCode) {
+        switch (errorCode) {
+            case 1:
+                showError(activity.getString(R.string.norespond_title), activity.getString(R.string.norespond));
+                break;
+            case 2:
+                showError(activity.getString(R.string.invalidurl_title), activity.getString(R.string.invalidurl));
+                break;
+            case 3:
+                showError(activity.getString(R.string.nohttps_title), activity.getString(R.string.nohttps));
+                break;
+            case 4:
+                showError(activity.getString(R.string.noconnection_title), activity.getString(R.string.noconnection));
+                break;
+            case 5:
+                showError(activity.getString(R.string.cantsave_title), activity.getString(R.string.cantsave));
+                break;
+            default:
+                showError(activity.getString(R.string.unexpecederror_title), activity.getString(R.string.unexpecederror));
+                break;
+        }
     }
 
     private void showError(String title, String error) {
@@ -131,6 +198,8 @@ public class ServerSettingsClass {
         }
 
         if (!extended) {
+            loadSavedSettings();
+
             Animation animation = new ShowAnimation(settingsInner, targetLastLocationDetailsHeight, false);
             animation.setDuration(Math.round(extendingSpeed * 0.75));
 
