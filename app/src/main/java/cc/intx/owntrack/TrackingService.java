@@ -16,9 +16,10 @@ import java.security.cert.Certificate;
 import java.util.ArrayList;
 
 public class TrackingService extends Service {
-    private String TAG; //Debug tag
+    /* Debug tag */
+    private String TAG;
 
-    //The pending intent is going to get called from the alarm manager
+    /* The pending intent is going to get called from the alarm manager */
     private PendingIntent pendingIntent;
     private AlarmManager alarmManager;
     private Preferences preferences;
@@ -30,17 +31,17 @@ public class TrackingService extends Service {
     private LocationReceiver locationReceiver;
     private SendLocation sendLocation;
 
-    //Current settings
+    /* Current settings */
     private String serverUrl;
     private boolean allowSelfSigned = false;
 
     private int locationInterval = -1;
     private boolean changedInterval = false;
 
-    //Indicates if the alarm manager is scheduled. If this is false the service will shutdown if the app is closed
+    /* Indicates if the alarm manager is scheduled. If this is false the service will shutdown if the app is closed */
     private boolean isRunning = false;
 
-    //Binder object to give the app an interface for communication
+    /* Binder object to give the app an interface for communication */
     private final IBinder serviceBinder = new ServiceBinder();
     public class ServiceBinder extends Binder {
         TrackingService getService() {
@@ -50,10 +51,12 @@ public class TrackingService extends Service {
 
     @Override
     public void onCreate() {
-        TAG = getString(R.string.app_name); //Set debug string to app name
+        /* Set debug string to app name */
+        TAG = getString(R.string.app_name);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);//TODO the urlstuff goes in a new thread, so the mainthread doesn't get stuck, instead of this workaround
+        /* TODO the url stuff goes in a new thread, so the main thread doesn't get stuck, instead of this workaround */
+        StrictMode.setThreadPolicy(policy);
 
         if (sendLocation == null) {
             sendLocation = new SendLocation(TAG, this);
@@ -72,33 +75,34 @@ public class TrackingService extends Service {
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "Bound");
 
-        //Pass the service interface to the app
+        /* Pass the service interface to the app */
         return serviceBinder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
         Log.d(TAG, "Unbound");
-        isRunningListener = null;//Remove the status change listener, which was passed from the app
+        /* Remove the status change listener, which was passed from the app */
+        isRunningListener = null;
         newLocationListener = null;
 
-        //If the app closes/unbinds and has chosen to stop the service, stop now
+        /* If the app closes/unbinds and has chosen to stop the service, stop now */
         if (!isRunning) {
             stopSelf();
         }
 
-        return false;//Do not call rebind on rebind, but bind
+        /* Do not call rebind on rebind, but bind */
+        return false;
     }
 
-    /*
-    Is called on start and from the alarm manager
-     */
+    /*  Is called on start and from the alarm manager */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //Debugging stuff
         Log.d(TAG, "We Run (" + isRunning + "). intent: " + (intent == null ? "null" : intent.toString()) + ", flags: " + flags + ", id: " + startId);
 
-        changeIsRunning(true);//Change running state
+        /* Change running state */
+        changeIsRunning(true);
         changedSettings();
 
         if (intent != null) {
@@ -106,29 +110,32 @@ public class TrackingService extends Service {
             locationReceiver.upload();
         }
 
-        return START_STICKY;//Service will stay active even if the Activity is not
+        /* Service will stay active even if the Activity is not */
+        return START_STICKY;
     }
 
-    //Called if the service should stop with the activity
+    /* Called if the service should stop with the activity */
     public void stopService() {
-        //Cancel the service scheduling, otherwise the service is reactivated from the alarm manager, even if it got stopped from the user
+        /*  Cancel the service scheduling, otherwise the service is reactivated from the alarm manager,
+            even if it got stopped from the user */
         if (alarmManager != null && pendingIntent != null) {
             Log.d(TAG, "Cancel all alarms");
 
             alarmManager.cancel(pendingIntent);
         }
 
-        changeIsRunning(false);//Change running state
+        /* Change running state */
+        changeIsRunning(false);
     }
 
     @Override
     public void onDestroy() {
-        //Cleanup the scheduling, to not get reactivated after destroy
+        /* Cleanup the scheduling, to not get reactivated after destroy */
         stopService();
 
         Log.d(TAG, "Destroyed service");
     }
-    
+
 
     private void createPreferences() {
         if (preferences == null) {
@@ -160,13 +167,13 @@ public class TrackingService extends Service {
         allowSelfSigned = preferences.getPreferenceObject().getInt("allowselfsigned", 0) == 1;
         sendLocation.changeSelfsigned(allowSelfSigned);
 
-        //Load current url
+        /* Load current url */
         getUrl();
 
-        //Load common secret
+        /* Load common secret */
         getCommonSecret();
 
-        //Load pinned certificate
+        /* Load pinned certificate */
         getPinnedCert();
 
         locationReceiver.changeUploadInterval(Integer.parseInt(uploadIntervalPreference.getPossibleValues().get(uploadIntervalPreference.getCurrentValue())));
@@ -179,7 +186,7 @@ public class TrackingService extends Service {
             }
 
             if (pendingIntent == null) {
-                //Create pending intend for the alarm manager to call TODO MAYBE is the service intend created correctly?
+                /* Create pending intend for the alarm manager to call TODO MAYBE is the service intend created correctly? */
                 Intent serviceIntent = new Intent(this, TrackingService.class);//Create new intent, to ignore the callee intend (autostart or app)
                 pendingIntent = PendingIntent.getService(this, 998566, serviceIntent, 0);
             }
@@ -191,25 +198,24 @@ public class TrackingService extends Service {
             }
 
             Log.d(TAG, "Rewrite alarm to " + locationInterval + " minutes.");
-            /*
-            Schedule tracking service. Inexact repeating to reduce battery draining, but *_WAKEUP to
-            track while the phone sleeps, otherwise the repeat can be REALLY inexact if the phone is
-            not used, which would make this app useless for a lot os usecases
-             */
+            /*  Schedule tracking service. Inexact repeating to reduce battery draining, but *_WAKEUP to
+                track while the phone sleeps, otherwise the repeat can be REALLY inexact if the phone is
+                not used, which would make this app useless for a lot os usecases */
             alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 5000, locationInterval * 60 * 1000, pendingIntent);
 
             changedInterval = false;
         }
     }
 
-
-    //////* SERVICE APPLICATION INTERFACE */
+    /* ----------------------------- */
+    /* SERVICE APPLICATION INTERFACE */
 
     public int checkServerSettings() {
         return sendLocation.checkServerSettings();
     }
 
-    ///* LISTENERS FOR ACTIVITY COMMUNICATION */
+    /* ------------------------------------ */
+    /* LISTENERS FOR ACTIVITY COMMUNICATION */
     private Runnable newLocationListener;
     public void setNewLocationListener(Runnable runnable) {
         newLocationListener = runnable;
@@ -223,14 +229,15 @@ public class TrackingService extends Service {
         }
     };
 
-    //Public interface for the app, to pass status changes to the ui. Updates status on new listener
+    /* Public interface for the app, to pass status changes to the ui. Updates status on new listener */
     private Runnable isRunningListener;
     public void setIsRunningListener(Runnable runnable) {
         isRunningListener = runnable;
         changeIsRunning(isRunning);
     }
 
-    ///* GETTERS for communication with the activity */
+    /* ------------------------------------------- */
+    /* GETTERS for communication with the activity */
     public LocationReceiver.LocationData getLastLocation() {
         if (locationReceiver != null) {
             return locationReceiver.getLastLocation();
@@ -256,7 +263,7 @@ public class TrackingService extends Service {
     public int getLastError() {
         int returnError = lastError;
 
-        //Reset error
+        /* Reset error */
         lastError = 0;
 
         return returnError;
@@ -306,12 +313,13 @@ public class TrackingService extends Service {
         return serverUrl;
     }
 
-    //Public interface for checking status
+    /* Public interface for checking status */
     public boolean getIsRunning() {
         return isRunning;
     }
 
-    ///* SETTERS for communication with the activity */
+    /* ------------------------------------------- */
+    /* SETTERS for communication with the activity */
     public int saveCommonSecret(String commonSecret) {
         SharedPreferences sharedPreferences = preferences.getPreferenceObject();
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -324,7 +332,7 @@ public class TrackingService extends Service {
         }
     }
 
-    //Changes status and calls status listener
+    /* Changes status and calls status listener */
     public void changeIsRunning(boolean isRunning) {
         this.isRunning = isRunning;
 

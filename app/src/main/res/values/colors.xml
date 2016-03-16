@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#f54336</color>
-    <color name="colorAccent">#00c853</color>
+    <color name="colorAccent">#00c853</color><!--#00c853-->
+    <color name="colorAccentBackground">#b9f6ca</color><!--#b9f6ca-->
 
     <color name="colorPrimaryDark">#d42f2f</color>
 
 
     <color name="active_green">@color/colorAccent</color>
-    <color name="active_green_bg">#b9f6ca</color>
+    <color name="active_green_bg">@color/colorAccentBackground</color><!--#b9f6ca-->
     <color name="hl_color">@color/colorPrimary</color>
 
     <color name="activeSwitch_offcolor_bg">#fff</color>

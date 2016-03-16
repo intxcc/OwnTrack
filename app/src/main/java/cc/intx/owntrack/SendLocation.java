@@ -14,56 +14,56 @@ public class SendLocation {
 
     private Context context;
 
-    //Save the url, which is saved in the user settings
+    /* Save the url, which is saved in the user settings */
     private String standardUrl = "";
-    //Save the commonSecret
+    /* Save the commonSecret */
     private String commonSecret = "";
-    //Save the pinnedCertificateHash
+    /* Save the pinnedCertificateHash */
     private String pinnedCertificate = "";
-    //Save if the user allowed self signed certificates
+    /* Save if the user allowed self signed certificates */
     private boolean allowSelfsigned = false;
 
-    //Save the last error, to not confuse errors with return values
+    /* Save the last error, to not confuse errors with return values */
     private int lastError = 0;
 
-    //Return the last error and reset it
+    /* Return the last error and reset it */
     public int getLastError() {
         int returnError = lastError;
 
-        //Reset error
+        /* Reset error */
         lastError = 0;
 
         return returnError;
     }
 
-    //Change the commonSecret, called initially and whenever settings are changed
+    /* Change the commonSecret, called initially and whenever settings are changed */
     public void changeCommonSecret(String commonSecret) {
         this.commonSecret = commonSecret;
     }
 
-    //Change the pinned certificate, called initially and whenever settings are changed
+    /* Change the pinned certificate, called initially and whenever settings are changed */
     public void changePinnedCertificate(String pinnedCertificate) {
         this.pinnedCertificate = pinnedCertificate;
     }
 
-    //Change the setting whether to allow self signing or not, called initially and whenever settings are changed
+    /* Change the setting whether to allow self signing or not, called initially and whenever settings are changed */
     public void changeSelfsigned(boolean allowSelfsigned) {
         this.allowSelfsigned = allowSelfsigned;
     }
 
-    //Change the standard url to use if not stated otherwise, called initially and whenever settings are changed
+    /* Change the standard url to use if not stated otherwise, called initially and whenever settings are changed */
     public void changeUrl(String url) {
         this.standardUrl = url;
     }
 
-    //Constructor
+    /* Constructor */
     public SendLocation(String TAG, Context context) {
         this.TAG = TAG;
 
         this.context = context;
     }
 
-    //Try to connect to a custom URL. Does not check any other settings
+    /* Try to connect to a custom URL. Does not check any other settings */
     public int pingNewServer(String sUrl) {
         OtServer server = new OtServer(TAG, sUrl, allowSelfsigned);
 
@@ -80,7 +80,7 @@ public class SendLocation {
         return result;
     }
 
-    //Check the user configuration and the configuration of the remote server
+    /* Check the user configuration and the configuration of the remote server */
     public int checkServerSettings() {
         OtServer server = new OtServer(TAG, standardUrl, allowSelfsigned);
         int ern = server.getError();
@@ -95,7 +95,7 @@ public class SendLocation {
         return result;
     }
 
-    //Get the cert of a custom URL
+    /* Get the cert of a custom URL */
     public Certificate[] getCerts(String sUrl) {
         OtServer server = new OtServer(TAG, sUrl, allowSelfsigned);
         int ern = server.getError();
@@ -118,7 +118,7 @@ public class SendLocation {
         return returnCerts;
     }
 
-    //Upload the location list
+    /* Upload the location list */
     public int upload(JSONArray locationList) {
         lastError = 0;
 

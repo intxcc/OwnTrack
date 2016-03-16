@@ -8,18 +8,18 @@ import android.util.Log;
 import java.util.ArrayList;
 
 public class Preferences {
-    //Debug tag
+    /* Debug tag */
     public String TAG;
 
-    //Service context
+    /* Service context */
     private Context context;
 
-    //Filename to save the preferences in
+    /* Filename to save the preferences in */
     private final String preferenceFile = "preferences";
-    //Preference object, so we only have to load them once
+    /* Preference object, so we only have to load them once */
     private SharedPreferences preferenceData;
 
-    //Arraylist which contains all preferences
+    /* Arraylist which contains all preferences */
     private ArrayList<Item> preferenceItems;
     private ArrayList<String> preferenceItemsKeys;
 
@@ -28,23 +28,35 @@ public class Preferences {
     }
 
     public class Item {
-        private String key;//The key for identifying single preferences
-        private int currentValue;//Contains always the current value
-        private String dataType;//Contains a string representing the datatype. This string is created with e.g. Boolean.TYPE.toString()
+        /* The key for identifying single preferences */
+        private String key;
+        /* Contains always the current value */
+        private int currentValue;
+        /* Contains a string representing the datatype. This string is created with e.g. Boolean.TYPE.toString() */
+        private String dataType;
 
-        private String descriptionTop;//The description to show above the value on the settings tile
-        private String valueSuffix;//The string to append to the value for better clarification (like " minute" for "1 minute", instead of just "1")
-        private String descriptionBottom;//The desctiption to show under the value in the settings tile. This is hidden by default and shows up on long click
+        /* The description to show above the value on the settings tile */
+        private String descriptionTop;
+        /* The string to append to the value for better clarification (like " minute" for "1 minute", instead of just "1") */
+        private String valueSuffix;
+        /* The description to show under the value in the settings tile. This is hidden by default and shows up on long click */
+        private String descriptionBottom;
 
-        private int backgroundColor;//Background color of the tile
-        private int textColor;//Text color of the tile
-        private int activeBackgroundColor;//Background color if active
-        private int activeTextColor;//Text color if active
+        /* Background color of the tile */
+        private int backgroundColor;
+        /* Text color of the tile */
+        private int textColor;
+        /* Background color if active */
+        private int activeBackgroundColor;
+        /* Text color if active */
+        private int activeTextColor;
 
-        private int defaultValue;//The value to use if none is set and to show "recommended" under
-        private ArrayList<String> possibleValues;//A list of all possible values
+        /* The value to use if none is set and to show "recommended" under */
+        private int defaultValue;
+        /* A list of all possible values */
+        private ArrayList<String> possibleValues;
 
-        //The constructor sets all variables of this preference
+        /* The constructor sets all variables of this preference */
         public Item(String key, String dataType, ArrayList<String> possibleValues, int defaultValue, String descriptionTop,
                     String descriptionBottom, String valueSuffix, int backgroundColor, int textColor, int activeBackgroundColor, int activeTextColor) {
             this.key = key;
@@ -59,39 +71,39 @@ public class Preferences {
             this.activeBackgroundColor = activeBackgroundColor;
             this.activeTextColor = activeTextColor;
 
-            //Load the current value index
+            /* Load the current value index */
             get();
         }
 
-        //Load the current value index
+        /* Load the current value index */
         public void get() {
             this.currentValue = preferenceData.getInt(this.key, this.defaultValue);
         }
 
-        //Saves the current value whenever the current tile changes
+        /* Saves the current value whenever the current tile changes */
         public boolean save(int index) {
-            //Load preference editor
+            /* Load preference editor */
             SharedPreferences.Editor editor = preferenceData.edit();
             editor.putInt(this.key, index);
 
-            //Commit the change
-            Boolean commited = editor.commit();
+            /* Commit the change */
+            Boolean committed = editor.commit();
 
-            //Check if the commit was successful
-            if (!commited) {
+            /* Check if the commit was successful */
+            if (!committed) {
                 Log.d(TAG, "Couldn't save settings.");
             } else {
-                //Change the current value only if the commit was successful
+                /* Change the current value only if the commit was successful */
                 currentValue = index;
             }
 
-            //Return if successful or not
-            return commited;
+            /* Return if successful or not */
+            return committed;
         }
 
-        /*
-        GETTER FUNCTIONS
-         */
+        /* ---------------- */
+        /* GETTER FUNCTIONS */
+
         public ArrayList<String> getPossibleValues() {
             return possibleValues;
         }
@@ -125,7 +137,7 @@ public class Preferences {
         }
 
         public int getCurrentValue() {
-            //Get the fresh loaded value
+            /* Get the fresh loaded value */
             get();
 
             return currentValue;
@@ -140,7 +152,7 @@ public class Preferences {
         }
     }
 
-    //Retrieve color from the xml. We need this function, because getColor(color) was deprecated, but we need to support the APIs
+    /* Retrieve color from the xml. We need this function, because getColor(color) was deprecated, but we need to support the APIs */
     private int getColor(int color) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return context.getResources().getColor(color, null);
@@ -153,24 +165,21 @@ public class Preferences {
         this.TAG = TAG;
         this.context = context;
 
-        //Load the settings interface
+        /* Load the settings interface */
         preferenceData = context.getSharedPreferences(preferenceFile, Context.MODE_PRIVATE);
-        //Create the preference list
+        /* Create the preference list */
         preferenceItems = new ArrayList<>();
         preferenceItemsKeys = new ArrayList<>();
 
-        //Local variables, which we use to load the preferences
+        /* Local variables, which we use to load the preferences */
         ArrayList<String> possibleValues;
         Item newItem;
         String currentKey;
 
-        /*
-        LOAD ALL PREFERENCE SETTINGS
-         */
+        /* ---------------------------- */
+        /* LOAD ALL PREFERENCE SETTINGS */
 
-        //Yes these are kind of hardcoded here, because we use a different approach then the standard android preferences
-
-        //Autostart setting
+        /* Autostart setting */
         possibleValues = new ArrayList<>();
         currentKey = "autostart";
 
@@ -181,7 +190,7 @@ public class Preferences {
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);
 
-        //Selfsigned setting
+        /* Allow self signed setting */
         possibleValues = new ArrayList<>();
         currentKey = "allowselfsigned";
 
@@ -192,7 +201,7 @@ public class Preferences {
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);
 
-        //Location retrieve interval setting
+        /* Location retrieve interval setting */
         possibleValues = new ArrayList<>();
         currentKey = "interval";
 
@@ -208,7 +217,7 @@ public class Preferences {
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);
 
-        //Upload interval setting
+        /* Upload interval setting */
         possibleValues = new ArrayList<>();
         currentKey = "uploadinterval";
 
@@ -224,7 +233,7 @@ public class Preferences {
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);
 
-        //Abort time setting
+        /* Abort time setting */
         possibleValues = new ArrayList<>();
         currentKey = "abortlocrecvafter";
 
@@ -241,12 +250,12 @@ public class Preferences {
         preferenceItemsKeys.add(currentKey);
     }
 
-    //Get all preference keys
+    /* Get all preference keys */
     public ArrayList<String> getKeys() {
         return preferenceItemsKeys;
     }
 
-    //Get all preferences
+    /* Get all preferences */
     public ArrayList<Item> getItems() {
         return preferenceItems;
     }

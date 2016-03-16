@@ -12,20 +12,20 @@ public class Autostart extends BroadcastReceiver {
         String TAG = context.getString(R.string.app_name); //Set debug string to app name
         Log.d(TAG, "Autostart received.");
 
-        //Create new intent to start the service
+        /* Create new intent to start the service */
         Intent serviceIntend = new Intent(context, TrackingService.class);
 
-        //Open preferences and lookup if autostart is active or not
+        /* Open preferences and lookup if autostart is active or not */
         SharedPreferences preferenceData = context.getSharedPreferences("preferences", Context.MODE_PRIVATE);
         if (preferenceData.getInt("autostart", 1) == 1) {
             Log.d(TAG, "Autostart activated.");
 
-            //Autostart is active. Start service
+            /* Autostart is active. Start service */
             context.startService(serviceIntend);
         } else {
             Log.d(TAG, "Autostart deactivated.");
 
-            //Autostart is disabled. Do nothing.
+            /* Autostart is disabled. Do nothing. */
         }
     }
 }

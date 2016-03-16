@@ -3,13 +3,12 @@ package cc.intx.owntrack;
 import java.security.MessageDigest;
 import java.security.cert.Certificate;
 
-/* The sole purpose of this class is to implement a few often used functions without reference to
-   anything OwnTrack specific */
+/* The sole purpose of this class is to implement a few often used functions without reference to anything OwnTrack specific */
 public class Misc {
-    /* Get the hash from a certificate. This hash is the same hash calculated by browsers if you view certificate details.
-       Initially the even more save SHA-512 was used, but currently no browser makes it easily visible and as we want
-       the user to be able to easily check if the cert is the same as from a e.g. laptop we use the quasi-standard which
-       is still very secure */
+    /*  Get the hash from a certificate. This hash is the same hash calculated by browsers if you view certificate details.
+        Initially the even more save SHA-512 was used, but currently no browser makes it easily visible and as we want
+        the user to be able to easily check if the cert is the same as from a e.g. laptop we use the quasi-standard which
+        is still very secure */
     public static String getCertFingerprint(Certificate certificate) {
         try {
             return hash("SHA-256", certificate.getEncoded());

@@ -50,6 +50,7 @@ public class StatusClass {
     }
 
     LocationReceiver.LocationData lastLocation;
+    /* Get last location and display it */
     private void loadLastLocation() {
         lastLocation = serviceControl.getLastLocation();
         if (lastLocation != null) {
@@ -89,6 +90,8 @@ public class StatusClass {
                 TextView lastLocationSpeedTextView = (TextView) activity.findViewById(R.id.lastLocationSpeedTextView);
                 Float speed = Math.round(lastLocation.getJSON().getDouble("speed") * 100) / 100f;
 
+                /*  If speed is 0, the provider probably hasn't got any speed information
+                    TODO Set speed to -1 if there is none and check for "speed >= 0" */
                 if (speed > 0) {
                     String speedString = String.valueOf(speed) + " m/s";
                     lastLocationSpeedTextView.setText(speedString);
