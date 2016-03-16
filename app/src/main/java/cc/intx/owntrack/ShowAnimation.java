@@ -4,6 +4,8 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
+/* Class for a custom height animation, used for e.g. expanding server settings */
+
 public class ShowAnimation extends Animation {
     boolean reverse;
     int targetHeight;

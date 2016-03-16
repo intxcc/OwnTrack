@@ -40,6 +40,7 @@ abstract class ServiceControlClass {
         }
     };
 
+    //Listener to react to new locations. For example this shows the new last location
     private Runnable lastLocationListener;
     private Runnable newLocationListener = new Runnable() {
         @Override
@@ -50,6 +51,7 @@ abstract class ServiceControlClass {
         }
     };
 
+    //Set the action to execute when a new location is received
     public void setLastLocationListener(Runnable runnable) {
         this.lastLocationListener = runnable;
     }
@@ -74,10 +76,13 @@ abstract class ServiceControlClass {
             trackingService.setIsRunningListener(changeStatusListener);
             trackingService.setNewLocationListener(newLocationListener);
 
+            //Initially load the last location
             if (lastLocationListener != null) {
                 lastLocationListener.run();
             }
+            //Initially load settings
             trackingService.changedSettings();
+            //Abstract function used to specify what action to perform on bind (e.g. update server settings view)
             onBound();
 
             //Change connection state
@@ -118,104 +123,6 @@ abstract class ServiceControlClass {
         isBound = false;
     }
 
-    public LocationReceiver.LocationData getLastLocation() {
-        if (trackingService != null) {
-            return trackingService.getLastLocation();
-        } else {
-            return null;
-        }
-    }
-
-    public int getToSendLocationsNumber() {
-        if (trackingService != null) {
-            return trackingService.getToSendLocationsNumber();
-        } else {
-            return 0;
-        }
-    }
-
-
-    public int getLastError() {
-        if (trackingService != null) {
-            return trackingService.getLastError();
-        } else {
-            return -1;
-        }
-    }
-
-    public int checkServerSettings() {
-        if (trackingService != null) {
-            return trackingService.checkServerSettings();
-        } else {
-            return -1;
-        }
-    }
-
-    public boolean getAllowSelfSigning() {
-        if (trackingService != null) {
-            return trackingService.getAllowSelfSigning();
-        } else {
-            return false;
-        }
-    }
-
-    public String getPinnedCert() {
-        if (trackingService != null) {
-            return trackingService.getPinnedCert();
-        } else {
-            return "";
-        }
-    }
-
-    public int pinCertificate(String fingerprint) {
-        if (trackingService != null) {
-            return trackingService.pinCertificate(fingerprint);
-        } else {
-            return -1;
-        }
-    }
-
-    public Certificate[] getCerts() {
-        if (trackingService != null) {
-            return trackingService.getCerts();
-        } else {
-            return null;
-        }
-    }
-
-    public String getCommonSecret() {
-        if (trackingService != null) {
-            return trackingService.getCommonSecret();
-        } else {
-            return context.getString(R.string.unexpectedsrverror);
-        }
-    }
-
-    public int saveCommonSecret(String commonSecret) {
-        if (trackingService != null) {
-            return trackingService.saveCommonSecret(commonSecret);
-        } else {
-            return 1;
-        }
-    }
-
-    public String getUrl() {
-        if (trackingService != null) {
-            return trackingService.getUrl();
-        } else {
-            return context.getString(R.string.unexpectedsrverror);
-        }
-    }
-
-    public int saveUrl(String url) {
-        if (trackingService != null) {
-            return trackingService.saveUrl(url);
-        } else {
-            return 1;
-        }
-    }
-
-
     /*
     Start the service and if we are not already bound or we lost connection
      */
@@ -250,12 +157,6 @@ abstract class ServiceControlClass {
         }
     }
 
-    public void changedSettings() {
-        if (trackingService != null) {
-            trackingService.changedSettings();
-        }
-    }
-
     //Get active state
     public boolean getActive() {
         return isServiceActive;
@@ -282,6 +183,113 @@ abstract class ServiceControlClass {
             isServiceWaiting = true;
 
             onChangeStatus();
+        }
+    }
+
+
+    //////* SERVICE APPLICATION INTERFACE */
+
+    public void changedSettings() {
+        if (trackingService != null) {
+            trackingService.changedSettings();
+        }
+    }
+
+    public int checkServerSettings() {
+        if (trackingService != null) {
+            return trackingService.checkServerSettings();
+        } else {
+            return -1;
+        }
+    }
+
+    ///* GETTERS for communication with the service */
+    public LocationReceiver.LocationData getLastLocation() {
+        if (trackingService != null) {
+            return trackingService.getLastLocation();
+        } else {
+            return null;
+        }
+    }
+
+    public int getToSendLocationsNumber() {
+        if (trackingService != null) {
+            return trackingService.getToSendLocationsNumber();
+        } else {
+            return 0;
+        }
+    }
+
+    public int getLastError() {
+        if (trackingService != null) {
+            return trackingService.getLastError();
+        } else {
+            return -1;
+        }
+    }
+
+    public boolean getAllowSelfSigning() {
+        if (trackingService != null) {
+            return trackingService.getAllowSelfSigning();
+        } else {
+            return false;
+        }
+    }
+
+    public String getPinnedCert() {
+        if (trackingService != null) {
+            return trackingService.getPinnedCert();
+        } else {
+            return "";
+        }
+    }
+
+    public Certificate[] getCerts() {
+        if (trackingService != null) {
+            return trackingService.getCerts();
+        } else {
+            return null;
+        }
+    }
+
+    public String getCommonSecret() {
+        if (trackingService != null) {
+            return trackingService.getCommonSecret();
+        } else {
+            return context.getString(R.string.unexpectedsrverror);
+        }
+    }
+
+    public String getUrl() {
+        if (trackingService != null) {
+            return trackingService.getUrl();
+        } else {
+            return context.getString(R.string.unexpectedsrverror);
+        }
+    }
+
+    ///* SETTERS for communication with the service */
+    public int pinCertificate(String fingerprint) {
+        if (trackingService != null) {
+            return trackingService.pinCertificate(fingerprint);
+        } else {
+            return -1;
+        }
+    }
+
+    public int saveCommonSecret(String commonSecret) {
+        if (trackingService != null) {
+            return trackingService.saveCommonSecret(commonSecret);
+        } else {
+            return 1;
+        }
+    }
+
+    public int saveUrl(String url) {
+        if (trackingService != null) {
+            return trackingService.saveUrl(url);
+        } else {
+            return 1;
         }
     }
 }

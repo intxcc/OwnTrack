@@ -49,8 +49,12 @@
                     exit(0);
                 }
 
-                if (!$stmt->execute()) {
-                    exit(0);
+                try {
+                    if (!$stmt->execute()) {
+                        exit(0);
+                    }
+                } catch(Exception $e){
+                    echo $e->getMessage();
                 }
             }
 

@@ -59,9 +59,11 @@ public class Preferences {
             this.activeBackgroundColor = activeBackgroundColor;
             this.activeTextColor = activeTextColor;
 
+            //Load the current value index
             get();
         }
 
+        //Load the current value index
         public void get() {
             this.currentValue = preferenceData.getInt(this.key, this.defaultValue);
         }
@@ -123,6 +125,7 @@ public class Preferences {
         }
 
         public int getCurrentValue() {
+            //Get the fresh loaded value
             get();
 
             return currentValue;
@@ -134,10 +137,6 @@ public class Preferences {
 
         public String getDescriptionBottom() {
             return descriptionBottom;
-        }
-
-        public String getKey() {
-            return key;
         }
     }
 
@@ -222,6 +221,22 @@ public class Preferences {
         possibleValues.add("100");
         newItem = new Item(currentKey, Integer.TYPE.toString(), possibleValues, 1, "Upload interval", "Time between upload attempts",
                 " locations",getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
+        preferenceItems.add(newItem);
+        preferenceItemsKeys.add(currentKey);
+
+        //Abort time setting
+        possibleValues = new ArrayList<>();
+        currentKey = "abortlocrecvafter";
+
+        possibleValues.add("2");
+        possibleValues.add("4");
+        possibleValues.add("6");
+        possibleValues.add("10");
+        possibleValues.add("15");
+        possibleValues.add("20");
+        possibleValues.add("30");
+        newItem = new Item(currentKey, Integer.TYPE.toString(), possibleValues, 2, "Abort after", "How long to wait for new location",
+                " seconds",getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);
     }

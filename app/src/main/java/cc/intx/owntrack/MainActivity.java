@@ -49,11 +49,13 @@ public class MainActivity extends AppCompatActivity {
             super(context, TAG);
         }
 
+        //Called if the service status changes (e.g. active -> not active)
         public void onChangeStatus() {
             //Implement onstatuschange action
             onServiceStatusChange();
         }
 
+        //Initially get all information like server settings and last location
         public void onBound() {
             serverSettingsClass.loadSavedSettings();
         }
@@ -121,12 +123,14 @@ public class MainActivity extends AppCompatActivity {
         serviceControl = new ServiceControl(this);
         preferencesView.setServiceControl(serviceControl);
 
+        //Check for location permissions, and request them from the user if necessary
         if (!(ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
             ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
             Log.d(TAG, "No permissions. Requesting.");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
         }
 
+        //If this is minimum marshmallow use the nice looking feature to change the color of the status bar
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Window window = this.getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -136,6 +140,8 @@ public class MainActivity extends AppCompatActivity {
 
         //Create Views for Status and Server Settings
         new StatusClass(this, TAG, serviceControl, Math.round(animationSpeed/2));
+
+        //Server settings get its own object we need to communicate with it
         serverSettingsClass = new ServerSettingsClass(this, TAG, serviceControl, Math.round(animationSpeed/2));
     }
 

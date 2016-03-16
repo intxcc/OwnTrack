@@ -26,17 +26,19 @@ public class TrackingService extends Service {
     private ArrayList<String> preferenceItemsKeys;
     private Preferences.Item intervalPreference;
     private Preferences.Item uploadIntervalPreference;
+    private Preferences.Item abortAfterMsPreference;
     private LocationReceiver locationReceiver;
     private SendLocation sendLocation;
 
     //Current settings
     private String serverUrl;
-
-    //Indicates if the alarm manager is scheduled. If this is false the service will shutdown if the app is closed
-    private boolean isRunning = false;
+    private boolean allowSelfSigned = false;
 
     private int locationInterval = -1;
     private boolean changedInterval = false;
+
+    //Indicates if the alarm manager is scheduled. If this is false the service will shutdown if the app is closed
+    private boolean isRunning = false;
 
     //Binder object to give the app an interface for communication
     private final IBinder serviceBinder = new ServiceBinder();
@@ -88,6 +90,46 @@ public class TrackingService extends Service {
         return false;//Do not call rebind on rebind, but bind
     }
 
+    /*
+    Is called on start and from the alarm manager
+     */
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        //Debugging stuff
+        Log.d(TAG, "We Run (" + isRunning + "). intent: " + (intent == null ? "null" : intent.toString()) + ", flags: " + flags + ", id: " + startId);
+
+        changeIsRunning(true);//Change running state
+        changedSettings();
+
+        if (intent != null) {
+            locationReceiver.getLocation(newLocationListenerWrapper, getAbortAfterMs());
+            locationReceiver.upload();
+        }
+
+        return START_STICKY;//Service will stay active even if the Activity is not
+    }
+
+    //Called if the service should stop with the activity
+    public void stopService() {
+        //Cancel the service scheduling, otherwise the service is reactivated from the alarm manager, even if it got stopped from the user
+        if (alarmManager != null && pendingIntent != null) {
+            Log.d(TAG, "Cancel all alarms");
+
+            alarmManager.cancel(pendingIntent);
+        }
+
+        changeIsRunning(false);//Change running state
+    }
+
+    @Override
+    public void onDestroy() {
+        //Cleanup the scheduling, to not get reactivated after destroy
+        stopService();
+
+        Log.d(TAG, "Destroyed service");
+    }
+    
+
     private void createPreferences() {
         if (preferences == null) {
             preferences = new Preferences(this, TAG);
@@ -97,10 +139,10 @@ public class TrackingService extends Service {
 
             intervalPreference = preferenceItems.get(preferenceItemsKeys.indexOf("interval"));
             uploadIntervalPreference = preferenceItems.get(preferenceItemsKeys.indexOf("uploadinterval"));
+            abortAfterMsPreference = preferenceItems.get(preferenceItemsKeys.indexOf("abortlocrecvafter"));
         }
     }
 
-    private boolean allowSelfSigned = false;
     public void changedSettings() {
         createPreferences();
 
@@ -160,6 +202,14 @@ public class TrackingService extends Service {
         }
     }
 
+
+    //////* SERVICE APPLICATION INTERFACE */
+
+    public int checkServerSettings() {
+        return sendLocation.checkServerSettings();
+    }
+
+    ///* LISTENERS FOR ACTIVITY COMMUNICATION */
     private Runnable newLocationListener;
     public void setNewLocationListener(Runnable runnable) {
         newLocationListener = runnable;
@@ -173,44 +223,6 @@ public class TrackingService extends Service {
         }
     };
 
-    /*
-    Is called on start and from the alarm manager
-     */
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        //Debugging stuff
-        //Log.d(TAG, "We Run (" + isRunning + "). intent: " + (intent == null ? "null" : intent.toString()) + ", flags: " + flags + ", id: " + startId);
-
-        changeIsRunning(true);//Change running state
-        changedSettings();
-
-        if (intent != null) {
-            locationReceiver.getLocation(newLocationListenerWrapper);
-        }
-
-        return START_STICKY;//Service will stay active even if the Activity is not
-    }
-
-    //Called if the service should stop with the activity
-    public void stopService() {
-        //Cancel the service scheduling, otherwise the service is reactivated from the alarm manager, even if it got stopped from the user
-        if (alarmManager != null && pendingIntent != null) {
-            Log.d(TAG, "Cancel all alarms");
-
-            alarmManager.cancel(pendingIntent);
-        }
-
-        changeIsRunning(false);//Change running state
-    }
-
-    @Override
-    public void onDestroy() {
-        //Cleanup the scheduling, to not get reactivated after destroy
-        stopService();
-
-        Log.d(TAG, "Destroyed service");
-    }
-
     //Public interface for the app, to pass status changes to the ui. Updates status on new listener
     private Runnable isRunningListener;
     public void setIsRunningListener(Runnable runnable) {
@@ -218,15 +230,7 @@ public class TrackingService extends Service {
         changeIsRunning(isRunning);
     }
 
-    //Changes status and calls status listener
-    public void changeIsRunning(boolean isRunning) {
-        this.isRunning = isRunning;
-
-        if (isRunningListener != null) {
-            isRunningListener.run();
-        }
-    }
-
+    ///* GETTERS for communication with the activity */
     public LocationReceiver.LocationData getLastLocation() {
         if (locationReceiver != null) {
             return locationReceiver.getLastLocation();
@@ -243,6 +247,10 @@ public class TrackingService extends Service {
         }
     }
 
+    private int getAbortAfterMs () {
+        return (Integer.parseInt(abortAfterMsPreference.getPossibleValues().get(abortAfterMsPreference.getCurrentValue())) * 1000);
+    }
+
 
     private int lastError = 0;
     public int getLastError() {
@@ -252,27 +260,6 @@ public class TrackingService extends Service {
         lastError = 0;
 
         return returnError;
-    }
-
-    public int checkServerSettings() {
-        return sendLocation.checkServerSettings();
-    }
-
-    public int pinCertificate(String fingerprint) {
-        SharedPreferences sharedPreferences = preferences.getPreferenceObject();
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        if (fingerprint.equals("")) {
-            editor.remove("pinnedcert");
-        } else {
-            editor.putString("pinnedcert", fingerprint);
-        }
-
-        if (!editor.commit()) {
-            return 5;
-        } else {
-            return 0;
-        }
     }
 
     public String getPinnedCert() {
@@ -308,6 +295,23 @@ public class TrackingService extends Service {
         return commonSecret;
     }
 
+    public String getUrl() {
+        createPreferences();
+
+        SharedPreferences sharedPreferences = preferences.getPreferenceObject();
+        serverUrl = sharedPreferences.getString("url", this.getString(R.string.exampleurl));
+
+        sendLocation.changeUrl(serverUrl);
+
+        return serverUrl;
+    }
+
+    //Public interface for checking status
+    public boolean getIsRunning() {
+        return isRunning;
+    }
+
+    ///* SETTERS for communication with the activity */
     public int saveCommonSecret(String commonSecret) {
         SharedPreferences sharedPreferences = preferences.getPreferenceObject();
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -320,15 +324,13 @@ public class TrackingService extends Service {
         }
     }
 
-    public String getUrl() {
-        createPreferences();
+    //Changes status and calls status listener
+    public void changeIsRunning(boolean isRunning) {
+        this.isRunning = isRunning;
 
-        SharedPreferences sharedPreferences = preferences.getPreferenceObject();
-        serverUrl = sharedPreferences.getString("url", this.getString(R.string.exampleurl));
-
-        sendLocation.changeUrl(serverUrl);
-
-        return serverUrl;
+        if (isRunningListener != null) {
+            isRunningListener.run();
+        }
     }
 
     public int saveUrl(String url) {
@@ -361,9 +363,20 @@ public class TrackingService extends Service {
         }
     }
 
+    public int pinCertificate(String fingerprint) {
+        SharedPreferences sharedPreferences = preferences.getPreferenceObject();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
 
-    //Public interface for checking status
-    public boolean getIsRunning() {
-        return isRunning;
+        if (fingerprint.equals("")) {
+            editor.remove("pinnedcert");
+        } else {
+            editor.putString("pinnedcert", fingerprint);
+        }
+
+        if (!editor.commit()) {
+            return 5;
+        } else {
+            return 0;
+        }
     }
 }
