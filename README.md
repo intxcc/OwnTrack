@@ -22,17 +22,27 @@ The app will check the phones location every few minutes, based on your settings
 
 __Another major difference__
 
-between this tracking app and the currently popular ones is, that even if you want the server to visualize the phones movement path, it doesn't need to use send that path to a second party. The Python script - which can be found in the GitHub repository for this app - will download the openstreetmap map-tile that fits the location range of the time frame you want to have a look at and draws the location points locally. without even openstreetmap knowing where these points are.
+between this tracking app and the currently popular ones is, that even if you want the server to visualize the phones movement path, it doesn't need to send that path to a second party. The Python script - which can be found in the GitHub repository for this app - will download the openstreetmap map-tile that fits the location range of the time frame you want to have a look at and draws the location points locally. without even openstreetmap knowing where these points are.
 
 __Your most private informations do never leave your control. You do not have to trust any second or third party__
 
 ### What platforms are supported by OwnTrack?
 Currently OwnTrack supports only __Android 4.1 or above__ (API 16). _Windows Phone and iOS are not supported_. This is due to the fact, that they don't really allow the user to control the OS, like custom roms without gApps do. Therefore a privacy application for these platforms would be rather useless.
 
-## Finally! From now on anyone can become an open beta tester and help speeding up development and fix issues
+## HowTo - Install the client
+Installing the all (client) is very easy. You have to options, you become a beta tester and receive all updates
+automatically. If you don't want or can use the Play Store, you can also look into the releases tab here on
+GitHub or look into the folder /master/apks/ for the newest build. Or - of course - you can just compile the app yourself.
+
+### Good news! From now on anyone can become an open beta tester and help speeding up development and fix issues
 OwnTrack has just arrived open beta stage. Want to help some developer and get free ice cream? I would have choosen that as well. Sadly I don't have ice cream, but you could still help fix some bugs if you become a beta tester and be one of the first ones to download OwnTrack from the official Google Play Store. Thank you!
 
 To start just follow this link: https://play.google.com/apps/testing/cc.intx.owntrack
+
+## HowTo - Install the server
+This is a little more tricky and therefore in its own file. Check out [INSTALL.md](/INSTALL.md) for the instructions.
+
+## Development
 
 ### What is the current development state?
 OwnTrack is currently __working__. OwnTrack is still beta software and has some bugs, but the main functionality should work flawlessly.
