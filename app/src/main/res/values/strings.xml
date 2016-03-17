@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">OwnTrack</string>
-    <string name="app_name_caption">Privacy is important. That is why.</string>
+    <string name="app_name_caption">Tracking software respecting privacy.</string>
 
     <string name="settings_hl_text">Settings</string>
     <string name="status_hl_text">Status</string>
@@ -36,4 +36,50 @@
 
     <string name="usepubliccerts">Use public CAs</string>
     <string name="useselfsignednopinned">WARNING! Selfsigned does only work with a pinned certificate.</string>
+
+    <string name="about_title">About OwnTrack</string>
+    <string name="about">
+        <![CDATA[
+        <html>
+        <head></head>
+        <body style="font-family:sans-serif-light;text-align:center;color:#fff;">
+            <div style="width:310px;margin:auto;text-align:justify;font-family:sans-serif;font-size:20px;">
+                This project is free and open source.
+                You can read the code, contribute yourself, or fork the repository on <a style="font-style:italic;font-family:sans-serif-condensed;color:#f54336;background-color:#fff;text-decoration:none;padding-left:2px;padding-right:2px;margin-right:1px;"
+                href="https://github.com/intxcc/OwnTrack">GitHub</a> if you want.
+            </div>
+
+            <div style="height:16px;"></div>
+            <div style="width:310px;margin:auto;text-align:justify">
+                <span style="font-size:12px;">
+                    <span style="font-family:sans-serif-condensed;text-decoration:underline">Found an issue</span><span style="font-family:sans-serif-condensed;">?</span>
+                    Please send a short <a style="font-style:italic;font-family:sans-serif-condensed;color:#f54336;background-color:#fff;text-decoration:none;padding-left:2px;padding-right:2px;margin-right:1px;" href="https://github.com/intxcc/OwnTrack/issues">issue report</a>.
+                    Bonus points if you attach a logcat log (google it) with the details of the issue.
+                </span>
+            </div>
+
+            <div style="height:8px;"></div>
+            <div style="width:310px;margin:auto;text-align:justify">
+                <span style="font-size:12px;">
+                    <span style="font-family:sans-serif-condensed;text-decoration:underline">Further questions</span><span style="font-family:sans-serif-condensed;">?</span>
+                    For any questions, not bug related, you can send a mail to p13[at]intx.cc.
+                </span>
+            </div>
+
+            <div style="height:16px;"></div>
+            <span style="font-size:14px;line-height:14px;font-family:sans-serif-condensed;">
+                Copyright &copy; 2016 intx |
+                <a style="font-style:italic;font-family:sans-serif-condensed;color:#f54336;background-color:#fff;text-decoration:none;padding-left:2px;padding-right:2px;padding-top:2px;" href="https://intx.cc/">intx.cc</a> |
+                <a style="font-style:italic;font-family:sans-serif-condensed;color:#f54336;background-color:#fff;text-decoration:none;padding-left:2px;padding-right:2px;padding-top:2px;" href="https://github.com/intxcc">GitHub</a>
+            </span>
+
+            <div style="margin-top:6px;">
+                <span style="font-size:10px;opacity: 0.75;">
+                    Project licensed under <a style="font-style:italic;font-family:sans-serif-condensed;color:#f54336;background-color:#fff;text-decoration:none;padding-left:2px;padding-right:2px;padding-top:2px;margin-right:1px;" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">cc-by-nc-sa 4.0</a>.
+                </span>
+            </div>
+        </body>
+        </html>
+        ]]>
+    </string>
 </resources>
