@@ -1,7 +1,7 @@
 <img align="left" src="/app/src/main/res/mipmap-xxhdpi/ic_launcher.png?raw=true" alt="Application icon" />
 ## OwnTrack - Tracking software respecting privacy
 
-### IMPORTANT: Please read the next paragraph carefully, before trying to use this app!
+### IMPORTANT - Please read the next paragraph carefully, before trying to use this app!
 This app will NOT work "out of the box". This app is one of two components to make location tracking possible, without leaking personal information. The second part is a web application, which you have to setup manually on a webserver.
 
 If you do not know how to set up a PHP script on a server, setup a Database, execute a Python script or do not know what any of these words mean, this app is not what you came here for.
@@ -29,10 +29,20 @@ __Your most private informations do never leave your control. You do not have to
 ### What platforms are supported by OwnTrack?
 Currently OwnTrack supports only __Android 4.1 or above__ (API 16). _Windows Phone and iOS are not supported_. This is due to the fact, that they don't really allow the user to control the OS, like custom roms without gApps do. Therefore a privacy application for these platforms would be rather useless.
 
+## Usage
+
+### What you need to use OwnTrack
+- A smartphone with Android 4.1 or above
+- A web server with the ability to:
+	- Execute PHP scripts
+	- Manage MySQL databases
+	- Handle HTTPS requests (Self signed certificates may be allowed trough app settings)
+	- (Optional) Execute python scripts
+
 ## HowTo - Install the client
 Installing the all (client) is very easy. You have to options, you become a beta tester and receive all updates
 automatically. If you don't want or can use the Play Store, you can also look into the releases tab here on
-GitHub or look into the folder /master/apks/ for the newest build. Or - of course - you can just compile the app yourself.
+GitHub or look into the folder /master/apks/ for the newest build. Or - of course - you can just compile the app yourself. Remember to allow the installation of third-party apps if you don't install OwnTrack through the Play Store.
 
 ### Good news! From now on anyone can become an open beta tester and help speeding up development and fix issues
 OwnTrack has just arrived open beta stage. Want to help some developer and get free ice cream? I would have choosen that as well. Sadly I don't have ice cream, but you could still help fix some bugs if you become a beta tester and be one of the first ones to download OwnTrack from the official Google Play Store. Thank you!
@@ -41,6 +51,9 @@ To start just follow this link: https://play.google.com/apps/testing/cc.intx.own
 
 ## HowTo - Install the server
 This is a little more tricky and therefore in its own file. Check out [INSTALL.md](/INSTALL.md) for the instructions.
+
+## HowTo - Browse the location history
+If the server is correctly set up, open the command line and change the directory to the one containing the "draw_map.py" file. Type "python draw_map.py help" to see all possible request formats. After the request there should be a new file "map.png" in the same folder. Voilà, your location history.
 
 ## Development
 
@@ -54,17 +67,13 @@ OwnTrack is currently __working__. OwnTrack is still beta software and has some 
 - Not secure connections are prevented
 - Certificates can be pinned to prevent MITM and to allow verifying servers with self signed certificates
 
-### What you need to use OwnTrack
-- A smartphone with Android 4.1 or above
-- A webserver with the ability to:
-	- Handle HTTPS requests (Self signed certificates may be allowed trough app settings)
-	- Execute PHP scripts
-	- (Optional) Execute python scripts
-
 ### Road map
 - Implementing the PHP script in Phyton or vice versa
 - Plenty of small TODOs in the source code
 - Make visualizing the location paths easier: A small "CMS" or looking up the map in the app
+
+### Ideas
+- Multi user support
 
 ## Latest Screenshots
 <img align="left" src="/screenshots/2016-03-17_00.png?raw=true" width="30%" alt="Latest screenshots" />
