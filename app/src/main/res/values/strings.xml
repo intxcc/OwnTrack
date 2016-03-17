@@ -54,7 +54,7 @@
                 <span style="font-size:12px;">
                     <span style="font-family:sans-serif-condensed;text-decoration:underline">Found an issue</span><span style="font-family:sans-serif-condensed;">?</span>
                     Please send a short <a style="font-style:italic;font-family:sans-serif-condensed;color:#f54336;background-color:#fff;text-decoration:none;padding-left:2px;padding-right:2px;margin-right:1px;" href="https://github.com/intxcc/OwnTrack/issues">issue report</a>.
-                    Bonus points if you attach a logcat log (google it) with the details of the issue.
+                    Bonus points if you attach a logcat log with the details of the issue.
                 </span>
             </div>
 

@@ -168,6 +168,7 @@ public class BootScreen {
                     @Override
                     public void run() {
                         outerWrapperLayout.removeAllViews();
+                        ((ViewGroup) outerWrapperLayout.getParent()).removeView(outerWrapperLayout);
                     }
                 }).start();
             }
