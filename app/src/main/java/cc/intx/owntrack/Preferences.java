@@ -152,15 +152,6 @@ public class Preferences {
         }
     }
 
-    /* Retrieve color from the xml. We need this function, because getColor(color) was deprecated, but we need to support the APIs */
-    private int getColor(int color) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return context.getResources().getColor(color, null);
-        } else {
-            return context.getResources().getColor(color);
-        }
-    }
-
     public Preferences(Context context, String TAG) {
         this.TAG = TAG;
         this.context = context;
@@ -186,7 +177,7 @@ public class Preferences {
         possibleValues.add("Not active");
         possibleValues.add("Active");//default
         newItem = new Item(currentKey, Boolean.TYPE.toString(), possibleValues, 1, "Enable autostart", "Service will restart after reboot", "",
-                           getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
+                           Misc.getColor(context, R.color.settingsflipper_bg), Misc.getColor(context, R.color.settingsflipper), Misc.getColor(context, R.color.active_green), Misc.getColor(context, R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);
 
@@ -197,7 +188,7 @@ public class Preferences {
         possibleValues.add("Don't allow");//default
         possibleValues.add("Allow");
         newItem = new Item(currentKey, Boolean.TYPE.toString(), possibleValues, 0, "Allow self signing", "Certificate is allowed to be self signed", "",
-                getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
+                Misc.getColor(context, R.color.settingsflipper_bg), Misc.getColor(context, R.color.settingsflipper), Misc.getColor(context, R.color.active_green), Misc.getColor(context, R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);
 
@@ -213,7 +204,7 @@ public class Preferences {
         possibleValues.add("45");
         possibleValues.add("60");
         newItem = new Item(currentKey, Integer.TYPE.toString(), possibleValues, 1, "Location interval", "Time between localisation attempts",
-                           " minutes",getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
+                           " minutes", Misc.getColor(context, R.color.settingsflipper_bg), Misc.getColor(context, R.color.settingsflipper), Misc.getColor(context, R.color.active_green), Misc.getColor(context, R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);
 
@@ -229,7 +220,7 @@ public class Preferences {
         possibleValues.add("50");
         possibleValues.add("100");
         newItem = new Item(currentKey, Integer.TYPE.toString(), possibleValues, 1, "Upload interval", "Time between upload attempts",
-                " locations",getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
+                " locations", Misc.getColor(context, R.color.settingsflipper_bg), Misc.getColor(context, R.color.settingsflipper), Misc.getColor(context, R.color.active_green), Misc.getColor(context, R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);
 
@@ -245,7 +236,7 @@ public class Preferences {
         possibleValues.add("20");
         possibleValues.add("30");
         newItem = new Item(currentKey, Integer.TYPE.toString(), possibleValues, 2, "Abort after", "How long to wait for new location",
-                " seconds",getColor(R.color.settingsflipper_bg), getColor(R.color.settingsflipper), getColor(R.color.active_green), getColor(R.color.settingsflipper_bg));
+                " seconds", Misc.getColor(context, R.color.settingsflipper_bg), Misc.getColor(context, R.color.settingsflipper), Misc.getColor(context, R.color.active_green), Misc.getColor(context, R.color.settingsflipper_bg));
         preferenceItems.add(newItem);
         preferenceItemsKeys.add(currentKey);
     }

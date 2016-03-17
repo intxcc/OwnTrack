@@ -128,7 +128,7 @@ public class OtServer {
                 if (e instanceof UnknownHostException) {
                     error = 4;
                 } else if (e instanceof SSLHandshakeException) {
-                    /* TODO This does not check exactely specify a wrong cert, but is close enough. An unsupported Algorithm could probably throw the same error */
+                    /* TODO This does not check exactly specify a wrong cert, but is close enough. An unsupported Algorithm could probably throw the same error */
                     error = 6;
                 } else {
                     e.printStackTrace();
@@ -153,7 +153,7 @@ public class OtServer {
         authentication bundle and use that to spam the server with data, the server saves all used salts, to make
         them one-time keys.
 
-        This all might seem like overthinking, but is helpful to prevent spam attacks on the server. Probably one
+        This all might seem like over thinking, but is helpful to prevent spam attacks on the server. Probably one
         could as well just send the common secret because https is supported only, but this way is cooler, already
         implemented and could help in case of an attempt from interstellar intelligent life trying to kill you */
     private JSONObject createAuthenticationBundle(String commonSecret, boolean isPing) {

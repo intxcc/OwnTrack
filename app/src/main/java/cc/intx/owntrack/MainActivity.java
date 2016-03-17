@@ -2,6 +2,7 @@ package cc.intx.owntrack;
 
 import android.Manifest;
 import android.animation.TimeInterpolator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -38,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView switchTextOverlay;
     private GridView gridview;
     private Switch activeSwitch;
-    private PreferencesView preferencesView;
 
     ServerSettingsClass serverSettingsClass;
 
@@ -119,30 +119,45 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        /* Create new control instance, which binds to the service gets its state */
-        serviceControl = new ServiceControl(this);
-        preferencesView.setServiceControl(serviceControl);
+        final Activity activity = this;
 
-        /* Check for location permissions, and request them from the user if necessary */
-        if (!(ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
-            Log.d(TAG, "No permissions. Requesting.");
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
-        }
+        /*  Show boot screen. We delay the actual start, so the boot screen is visible, before other tasks
+            like the remote server check block the main thread. With this the start feels a lot smoother */
+        new BootScreen(this, animationSpeed, 400, new Runnable() {
+            @Override
+            public void run() {
+                /* Initialize preferences view */
+                Preferences preferences = new Preferences(activity, TAG);
+                ArrayList<Preferences.Item> preferenceItems = preferences.getItems();
+                PreferencesView preferencesView = new PreferencesView(activity, preferenceItems, TAG, animationInterpolator, fastAnimationSpeed);
+                gridview.setAdapter(preferencesView);
 
-        /* If this is minimum marshmallow use the nice looking feature to change the color of the status bar */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Window window = this.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(this.getResources().getColor(R.color.colorPrimaryDark, null));
-        }
+                /* Create new control instance, which binds to the service gets its state */
+                serviceControl = new ServiceControl(activity);
+                preferencesView.setServiceControl(serviceControl);
 
-        /* Create Views for Status and Server Settings */
-        new StatusClass(this, TAG, serviceControl, Math.round(animationSpeed/2));
+                /* Check for location permissions, and request them from the user if necessary */
+                if (!(ContextCompat.checkSelfPermission(activity, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                        ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+                    Log.d(TAG, "No permissions. Requesting.");
+                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+                }
 
-        /* Server settings get its own object we need to communicate with it */
-        serverSettingsClass = new ServerSettingsClass(this, TAG, serviceControl, Math.round(animationSpeed/2));
+                /* If this is minimum marshmallow use the nice looking feature to change the color of the status bar */
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    Window window = activity.getWindow();
+                    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                    window.setStatusBarColor(activity.getResources().getColor(R.color.colorPrimaryDark, null));
+                }
+
+                /* Create Views for Status and Server Settings */
+                new StatusClass(activity, TAG, serviceControl, Math.round(animationSpeed/2));
+
+                /* Server settings get its own object we need to communicate with it */
+                serverSettingsClass = new ServerSettingsClass(activity, TAG, serviceControl, Math.round(animationSpeed/2));
+            }
+        });
     }
 
     @Override
@@ -168,13 +183,7 @@ public class MainActivity extends AppCompatActivity {
         switchTextOverlay = (TextView) findViewById(R.id.active_switcher_label_overlay);
         switchLayoutF = (FrameLayout) findViewById(R.id.active_switcher_text_overlay);
         activeSwitch = (Switch) findViewById(R.id.active_switch);
-        Preferences preferences = new Preferences(this, TAG);
-
-        /* Initialize settings */
         gridview = (GridView) findViewById(R.id.gridview);
-        ArrayList<Preferences.Item> preferenceItems = preferences.getItems();
-        preferencesView = new PreferencesView(this, preferenceItems, TAG, animationInterpolator, fastAnimationSpeed);
-        gridview.setAdapter(preferencesView);
 
         /* Called when the layout of the view overlay changes */
         switchLayoutOverlay.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {

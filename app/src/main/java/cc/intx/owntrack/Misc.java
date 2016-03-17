@@ -1,5 +1,9 @@
 package cc.intx.owntrack;
 
+import android.content.Context;
+import android.os.Build;
+import android.widget.TextView;
+
 import java.security.MessageDigest;
 import java.security.cert.Certificate;
 
@@ -49,5 +53,14 @@ public class Misc {
         String returnString = buf.toString();
 
         return returnString.toUpperCase();
+    }
+
+    /* Retrieve color from the xml. We need this function, because getColor(color) was deprecated, but we need to support the APIs */
+    public static int getColor(Context context, int color) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return context.getResources().getColor(color, null);
+        } else {
+            return context.getResources().getColor(color);
+        }
     }
 }

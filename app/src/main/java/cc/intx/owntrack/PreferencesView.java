@@ -3,6 +3,7 @@ package cc.intx.owntrack;
 import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Handler;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -16,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
+
 import java.util.ArrayList;
 
 /*  The PreferencesView object is the whole settings interface.
@@ -37,20 +39,7 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
         which is a nice effect for e.g. booleans. */
     private static final int rewindLimit = 3;
 
-    /* Custom TextView, because all Settings should be square instead of rectangle */
-    private class SquareTextView extends TextView {
-        public SquareTextView(Context context) {
-            super(context);
-        }
-
-        @Override
-        public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            /* The high corresponds with the width */
-            super.onMeasure(widthMeasureSpec, widthMeasureSpec);
-        }
-    }
-
-    /*  A preference view does show exactely one preference and gives the user the ability to choose
+    /*  A preference view does show exactly one preference and gives the user the ability to choose
         between the different values. */
     private class PreferenceView {
         private Preferences.Item preferenceItem;
@@ -60,6 +49,7 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
         private TextView recommendedSettingLabel;
         private TextView headerLabel;
         private TextView footerLabel;
+        private TextView scrollBar;
 
         /* Create a new animation object for the next animations */
         private Animation getNewAnimation(boolean inAnimation, boolean reverseAnimation) {
@@ -78,29 +68,64 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
 
             /* The main component of a PreferenceView is this ViewFlipper which holds all possible values */
             viewFlipper = new ViewFlipper(context);
-
             /* A wrapper to show additional information like descriptions */
             preferenceView = new FrameLayout(context);
-            preferenceView.addView(viewFlipper);
 
+            /* The overlay holds all additional information */
+            loadOverlay();
+            /* Load all values from which the user can choose */
             loadPossibleValues();
+            /* Set the actions to perform on click (and touch) */
             setOnClick();
+            /* Load the current active settings */
             loadCurrentSettings();
 
-            /* The overlay holds all additional informations */
-            loadOverlay();
-        }
-
-        private void loadOverlay() {
-            /* Create views for additional informations */
-            recommendedSettingLabel = new TextView(context);
-            headerLabel = new TextView(context);
-            footerLabel = new TextView(context);
-
-            /* Add the overlay to the PreferenceView */
+            /* Add the the main view, which holds all values */
+            preferenceView.addView(viewFlipper);
+            /* Add the overlays to the PreferenceView */
             preferenceView.addView(recommendedSettingLabel);
             preferenceView.addView(headerLabel);
             preferenceView.addView(footerLabel);
+            /* Initialize scrollbar which indicates the position of the current value */
+            preferenceView.addView(createScrollBar());
+        }
+
+        private TextView createScrollBar() {
+            scrollBar = new TextView(context);
+
+            /* Hide scrollbar if the value is of type boolean */
+            if (preferenceItem.getDataType().equals(Boolean.TYPE.toString())) {
+                scrollBar.setAlpha(0);
+            } else {
+                scrollBar.setBackgroundColor(preferenceItem.getActiveBackgroundColor());
+            }
+
+            return scrollBar;
+        }
+
+        /* Move the scrollview accordingly to index of the displayed view in the flipper */
+        private void showScrollPosition(int index) {
+            /* It's size is relative to the preference vie */
+            int parentHeight = preferenceView.getMeasuredHeight();
+            int height = parentHeight / (preferenceItem.getPossibleValues().size() + 2);
+
+            /* Adjust the size of the scroll indicator */
+            ViewGroup.LayoutParams layoutParams = scrollBar.getLayoutParams();
+            layoutParams.height = parentHeight / 5;
+            layoutParams.width = height / 4;
+
+            /*  Calculate the new y position. We leave 1.5 scroll indicator heights margin at top and bottom */
+            int newY = ((index + 1) * height) + (height / 2) - (parentHeight / 10);
+
+            /* Animate to the new position */
+            scrollBar.animate().y(newY).setDuration((int)(fastAnimationSpeed * 1.5)).setInterpolator(timeInterpolator);
+        }
+
+        private void loadOverlay() {
+            /* Create views for additional information */
+            recommendedSettingLabel = new TextView(context);
+            headerLabel = new TextView(context);
+            footerLabel = new TextView(context);
 
             /* Set overlay to the standard configuration */
             recommendedSettingLabel.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -109,15 +134,6 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
             recommendedSettingLabel.setAlpha(0f);
             headerLabel.setAlpha(0f);
             footerLabel.setAlpha(0f);
-
-            /*  If the layout change we call onFlip to load the current configuration, and to react
-                to layout changes which could destroy the layout look */
-            recommendedSettingLabel.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-                @Override
-                public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                    onFlip();
-                }
-            });
 
             /* On long click we show the description of the current setting */
             viewFlipper.setOnLongClickListener(new View.OnLongClickListener() {
@@ -129,8 +145,8 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
             });
         }
 
-        /* Is called on start and whenever the viewFlipper is flipped */
-        private void onFlip() {
+        /* Updates all elements in this preference view. E.g to be in sync with saved settings */
+        public void refresh() {
             /* Get the active View for the active value */
             TextView v = (TextView) viewFlipper.getCurrentView();
 
@@ -190,11 +206,21 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
                 }
             }
 
-            /* Save the new current value index to preference */
+            /* Update the scroll position to indicate the selected item */
+            showScrollPosition(viewFlipper.getDisplayedChild());
+        }
+
+        /* Is called to save the new settings */
+        private void saveDisplayedChild() {
+            refresh();
+
+            /* Save the new current value index to preferences */
             preferenceItem.save(viewFlipper.getDisplayedChild());
 
             if (serviceControl != null) {
                 serviceControl.changedSettings();
+            } else {
+                Log.d(TAG, "Unexpected error. ServiceControl unavailable. Could not save.");
             }
         }
 
@@ -205,33 +231,15 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
 
         /* Load every possible value in its own TextView with a layout based on the value (e.g. green if active) */
         private void loadPossibleValues() {
-            /* Initialize min/max for integer values to change the color of the tile based on the value */
-            int min = -1;
-            int max = -1;
-            int step = -1;
-
-            /* Temp variable for color operations */
-            float[] hsv = new float[3];
-
             /* Go through the list of possible values */
             ArrayList<String> possibleValues = preferenceItem.getPossibleValues();
             for (String s: possibleValues) {
                 /* If the preference is of type Integer change the layout based on the integer value */
                 if (preferenceItem.getDataType().equals(Integer.TYPE.toString())) {
-                    /* If min and max are not loaded yet, load then and calculate the step between each value */
-                    if (min < 0 || max < 0) {
-                        min = Integer.parseInt(possibleValues.get(0));
-                        max = Integer.parseInt(possibleValues.get(possibleValues.size() - 1));
-                        step = 160 / (max - min);
-
-                        /* Load the color as hsv, so we can perform color operation, to change the color based on the integer value */
-                        Color.colorToHSV(preferenceItem.getActiveBackgroundColor(), hsv);
-                    }
-
                     /* Set the text color */
-                    int textColor = preferenceItem.getBackgroundColor();
-                    /* Set the background color. The alpha channel is based on the integer value */
-                    int backgroundColor = Color.HSVToColor(240 - Integer.parseInt(s) * step, hsv);
+                    int textColor = preferenceItem.getTextColor();
+                    /* Set the background color. Integer values are white, the color is used from the scroll bar */
+                    int backgroundColor = Color.WHITE;
 
                     /* Create the tile and add it to the flipper */
                     valueTile(possibleValues.indexOf(s), s, backgroundColor, textColor);
@@ -274,17 +282,20 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
             previous value and to the next view if pressing the bottom half. */
         private float yMotion;
         private void setOnClick() {
-            /* Set ontouch listener to set the yMotion variable */
+            /* Set on touch listener to set the yMotion variable */
             viewFlipper.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    yMotion = (event.getAxisValue(MotionEvent.AXIS_Y) - viewFlipper.getTop() - ((viewFlipper.getBottom() - viewFlipper.getTop()) / 2)) / (viewFlipper.getMeasuredHeight() / 2);
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        /* yMotion should get Values between 0.0 and 1.0. Where 0.5 is the vertical mid, 0 is v.top and 1 v.bottom */
+                        yMotion = (event.getY() - v.getTop()) / v.getMeasuredHeight();
+                    }
                     return false;
                 }
             });
 
             viewFlipper.setOnClickListener(new View.OnClickListener() {
-                /* Save the direction to go throuh the values */
+                /* Save the direction to go through the values */
                 private boolean reverse = false;
 
                 @Override
@@ -308,7 +319,7 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
                             f.showNext();
                         }
                     } else {
-                        if (yMotion < -0.5) {
+                        if (yMotion < 0.5) {
                             reverse = true;
                             setAnimator(true);
 
@@ -321,14 +332,25 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
                         }
                     }
 
-                    /* Call onFlip to perform actions like saving the current value */
-                    onFlip();
+                    /* Save the new settings */
+                    saveDisplayedChild();
                 }
             });
         }
 
         /* Interface for the adapter to receive the whole preference view */
         public FrameLayout getView() {
+            /*  This is kind of a work around but does it's job very well. This ensures, that the
+                preference view is initialized without collisions with requested layouts */
+            Handler handler = new Handler();
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    refresh();
+                }
+            };
+            handler.postDelayed(runnable, 50);
+
             return preferenceView;
         }
     }
@@ -347,15 +369,13 @@ public class PreferencesView extends ArrayAdapter<Preferences.Item> {
     }
 
     private FrameLayout createView(Preferences.Item preferenceItem) {
-        return (new PreferenceView(preferenceItem)).getView();
+        PreferenceView newPreferenceView = new PreferenceView(preferenceItem);
+        return newPreferenceView.getView();
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            convertView = createView(getItem(position));
-        }
-
-        return convertView;
+        /* TODO Don't try to convert an old view, this will currently lead to unexpected behaviour */
+        return createView(getItem(position));
     }
 }

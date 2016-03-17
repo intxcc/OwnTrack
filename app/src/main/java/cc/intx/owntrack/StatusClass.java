@@ -40,6 +40,8 @@ public class StatusClass {
         lastLocationToSendTextView = (TextView) activity.findViewById(R.id.lastLocationToSendTextView);
         mapOverlay = (FrameLayout) activity.findViewById(R.id.mapOverlay);
         lastLocationDetails = (LinearLayout) activity.findViewById(R.id.lastLocationDetails);
+
+        /* Set listener to receive location changes, so we can display them */
         serviceControl.setLastLocationListener(new Runnable() {
             @Override
             public void run() {

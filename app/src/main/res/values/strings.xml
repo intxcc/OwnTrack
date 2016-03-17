@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">OwnTrack</string>
+    <string name="app_name_caption">Privacy is important. That is why.</string>
+
     <string name="settings_hl_text">Settings</string>
     <string name="status_hl_text">Status</string>
 

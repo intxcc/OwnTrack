@@ -187,7 +187,8 @@ abstract class ServiceControlClass {
     }
 
 
-    //////* SERVICE APPLICATION INTERFACE */
+    /* ----------------------------- */
+    /* SERVICE APPLICATION INTERFACE */
 
     public void changedSettings() {
         if (trackingService != null) {
@@ -203,7 +204,8 @@ abstract class ServiceControlClass {
         }
     }
 
-    ///* GETTERS for communication with the service */
+    /* ------------------------------------------ */
+    /* GETTERS for communication with the service */
     public LocationReceiver.LocationData getLastLocation() {
         if (trackingService != null) {
             return trackingService.getLastLocation();
@@ -268,7 +270,8 @@ abstract class ServiceControlClass {
         }
     }
 
-    ///* SETTERS for communication with the service */
+    /* ------------------------------------------ */
+    /* SETTERS for communication with the service */
     public int pinCertificate(String fingerprint) {
         if (trackingService != null) {
             return trackingService.pinCertificate(fingerprint);
