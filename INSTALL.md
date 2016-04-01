@@ -1,6 +1,9 @@
 # OwnTrack - Installation guide
 This guide will explain all steps to set up a working OwnTrack installation. For this guide we assume you have already installed the OwnTrack app on your smartphone. If you don't know how to install the app, check [this](/README.md#howto---install-the-client) chapter.
 
+## Video HowTo
+On youtube: https://www.youtube.com/watch?v=RQiMUfzfB94
+
 ## Preparation
 To set up OwnTrack you will need a server, with important abilities. You don't have to use an expensive root server for this. You can use any server which is able to:
 - Execute PHP scripts
