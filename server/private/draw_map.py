@@ -91,7 +91,8 @@ mlat = (minLat + maxLat) / 2
 zoom = int(math.log((360 / ((maxLat - minLat) / 1)),2))
 
 maptemp = "map.png.temp"
-urllib.urlretrieve("http://staticmap.openstreetmap.de/staticmap.php?center=" + str(mlat) + "," + str(mlon) + "&zoom=" + str(zoom) + "&size=1024x1024&maptype=mapnik", maptemp)
+mapurl = "https://tyler-demo.herokuapp.com/?lat=" + str(mlat) + "&lon=" + str(mlon) + "&zoom=" + str(zoom) + "&width=1024&height=1024&maptype=mapnik"
+urllib.urlretrieve(mapurl, maptemp)
 
 #create file
 if (usefile):
